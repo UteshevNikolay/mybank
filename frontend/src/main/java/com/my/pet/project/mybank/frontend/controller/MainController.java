@@ -5,8 +5,9 @@ import com.my.pet.project.mybank.frontend.dto.AccountDto;
 import com.my.pet.project.mybank.frontend.dto.AccountResponse;
 import com.my.pet.project.mybank.frontend.dto.AccountUpdateRequest;
 import com.my.pet.project.mybank.frontend.dto.CashAction;
+import com.my.pet.project.mybank.frontend.dto.CashResponse;
 import com.my.pet.project.mybank.frontend.exception.ServiceException;
-import com.my.pet.project.mybank.frontend.stub.CashStub;
+import com.my.pet.project.mybank.frontend.client.CashClient;
 import com.my.pet.project.mybank.frontend.stub.TransferStub;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -24,16 +25,16 @@ import java.util.List;
 public class MainController {
 
     private final AccountClient accountClient;
-    private final CashStub cashStub;
+    private final CashClient cashClient;
     private final TransferStub transferStub;
     private final String defaultLogin;
 
     public MainController(AccountClient accountClient,
-                          CashStub cashStub,
+                          CashClient cashClient,
                           TransferStub transferStub,
                           @Value("${frontend.default-login}") String defaultLogin) {
         this.accountClient = accountClient;
-        this.cashStub = cashStub;
+        this.cashClient = cashClient;
         this.transferStub = transferStub;
         this.defaultLogin = defaultLogin;
     }
@@ -82,10 +83,10 @@ public class MainController {
                            @RequestParam("action") CashAction action) {
         try {
             AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
-            String info = cashStub.processCash(account.id(), account.balance(), value, action);
+            CashResponse cashResponse = cashClient.processCash(account.id(), value, action.name());
             account = accountClient.getAccountByLogin(defaultLogin);
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, null, info);
+            fillModel(model, account, allAccounts, null, cashResponse.message());
         } catch (ServiceException e) {
             try {
                 AccountResponse account = accountClient.getAccountByLogin(defaultLogin);

@@ -103,6 +103,21 @@ services:
     networks:
       - mybank-network
 
+  cash:
+    build: ./cash
+    container_name: cash
+    ports:
+      - "8083:8083"
+    depends_on:
+      - consul
+      - cash-db
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_DATASOURCE_URL: jdbc:postgresql://cash-db:5432/cash_db
+      ACCOUNTS_SERVICE_URL: http://accounts:8081
+    networks:
+      - mybank-network
+
   frontend:
     build: ./frontend
     container_name: frontend
