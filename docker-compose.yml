@@ -89,6 +89,20 @@ services:
     networks:
       - mybank-network
 
+  accounts:
+    build: ./accounts
+    container_name: accounts
+    ports:
+      - "8081:8081"
+    depends_on:
+      - consul
+      - accounts-db
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_DATASOURCE_URL: jdbc:postgresql://accounts-db:5432/accounts_db
+    networks:
+      - mybank-network
+
 volumes:
   accounts-db-data:
   cash-db-data:
