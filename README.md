@@ -55,6 +55,7 @@ A microservice-based banking application with a UI that allows users to:
 mybank/
 ├── gateway/          — Spring Cloud Gateway (port 8090)
 ├── accounts/         — Accounts service (port 8081)
+├── frontend/         — Frontend UI with Thymeleaf (port 8082)
 ├── docker-compose.yml
 ├── build.gradle      — root build with shared config
 ├── settings.gradle
@@ -69,6 +70,7 @@ mybank/
 | Keycloak | keycloak/keycloak:26.2 | 8080 | OAuth 2.0 Authorization Server |
 | Gateway | custom (Spring Cloud Gateway) | 8090 | API Gateway |
 | Accounts | custom (Spring Boot) | 8081 | Account data management |
+| Frontend | custom (Spring Boot + Thymeleaf) | 8082 | Web UI |
 | accounts-db | postgres:17 | 5433 | Accounts service database |
 | cash-db | postgres:17 | 5434 | Cash service database |
 | transfer-db | postgres:17 | 5435 | Transfer service database |
@@ -83,7 +85,7 @@ All services run on a shared `mybank-network` bridge network.
 docker compose up -d consul keycloak accounts-db cash-db transfer-db notifications-db
 
 # Build services
-./gradlew :gateway:build :accounts:build
+./gradlew :gateway:build :accounts:build :frontend:build
 
 # Start everything
 docker compose up -d

@@ -103,6 +103,21 @@ services:
     networks:
       - mybank-network
 
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8082:8082"
+    depends_on:
+      - consul
+      - gateway
+      - accounts
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: consul
+      GATEWAY_URL: http://gateway:8090
+    networks:
+      - mybank-network
+
 volumes:
   accounts-db-data:
   cash-db-data:

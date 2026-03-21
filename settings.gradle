@@ -2,3 +2,4 @@ rootProject.name = 'mybank'
 
 include 'gateway'
 include 'accounts'
+include 'frontend'

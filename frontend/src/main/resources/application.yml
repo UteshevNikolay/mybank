@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: frontend
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}:${random.value}
+
+server:
+  port: 8082
+
+gateway:
+  url: http://localhost:8090
+
+frontend:
+  default-login: user1
