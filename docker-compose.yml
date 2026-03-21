@@ -1,0 +1,100 @@
+services:
+
+  consul:
+    image: hashicorp/consul:1.21
+    container_name: consul
+    ports:
+      - "8500:8500"
+    command: "agent -server -bootstrap-expect=1 -ui -client=0.0.0.0"
+    networks:
+      - mybank-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2
+    container_name: keycloak
+    ports:
+      - "8080:8080"
+    command: "start-dev"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    networks:
+      - mybank-network
+
+  accounts-db:
+    image: postgres:17
+    container_name: accounts-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: accounts_db
+    volumes:
+      - accounts-db-data:/var/lib/postgresql/data
+    networks:
+      - mybank-network
+
+  cash-db:
+    image: postgres:17
+    container_name: cash-db
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cash_db
+    volumes:
+      - cash-db-data:/var/lib/postgresql/data
+    networks:
+      - mybank-network
+
+  transfer-db:
+    image: postgres:17
+    container_name: transfer-db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: transfer_db
+    volumes:
+      - transfer-db-data:/var/lib/postgresql/data
+    networks:
+      - mybank-network
+
+  notifications-db:
+    image: postgres:17
+    container_name: notifications-db
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: notifications_db
+    volumes:
+      - notifications-db-data:/var/lib/postgresql/data
+    networks:
+      - mybank-network
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - "8090:8090"
+    depends_on:
+      - consul
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: consul
+    networks:
+      - mybank-network
+
+volumes:
+  accounts-db-data:
+  cash-db-data:
+  transfer-db-data:
+  notifications-db-data:
+
+networks:
+  mybank-network:
+    driver: bridge
