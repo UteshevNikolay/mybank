@@ -14,10 +14,13 @@ services:
     container_name: keycloak
     ports:
       - "8080:8080"
-    command: "start-dev"
+    command: "start-dev --import-realm"
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: localhost
+    volumes:
+      - ./keycloak/mybank-realm.json:/opt/keycloak/data/import/mybank-realm.json:ro
     networks:
       - mybank-network
 
@@ -100,6 +103,7 @@ services:
     environment:
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_DATASOURCE_URL: jdbc:postgresql://accounts-db:5432/accounts_db
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/certs
     networks:
       - mybank-network
 
@@ -111,9 +115,13 @@ services:
     depends_on:
       - consul
       - cash-db
+      - keycloak
     environment:
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_DATASOURCE_URL: jdbc:postgresql://cash-db:5432/cash_db
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/mybank
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/token
     networks:
       - mybank-network
 
@@ -125,9 +133,13 @@ services:
     depends_on:
       - consul
       - transfer-db
+      - keycloak
     environment:
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_DATASOURCE_URL: jdbc:postgresql://transfer-db:5432/transfer_db
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/mybank
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/token
     networks:
       - mybank-network
 
@@ -142,6 +154,7 @@ services:
     environment:
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_DATASOURCE_URL: jdbc:postgresql://notifications-db:5432/notifications_db
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/certs
     networks:
       - mybank-network
 
@@ -154,9 +167,13 @@ services:
       - consul
       - gateway
       - accounts
+      - keycloak
     environment:
       SPRING_CLOUD_CONSUL_HOST: consul
       GATEWAY_URL: http://gateway:8090
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/token
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_INFO_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/userinfo
     networks:
       - mybank-network
 

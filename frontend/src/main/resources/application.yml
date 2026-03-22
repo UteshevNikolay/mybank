@@ -8,12 +8,22 @@ spring:
       discovery:
         register: true
         instance-id: ${spring.application.name}:${random.value}
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/mybank
+        registration:
+          keycloak:
+            client-id: mybank-frontend
+            client-secret: frontend-secret
+            scope: openid,profile,email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
 
 server:
   port: 8082
 
 gateway:
   url: http://localhost:8090
-
-frontend:
-  default-login: user1

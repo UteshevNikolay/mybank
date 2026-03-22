@@ -1,6 +1,11 @@
 spring:
   application:
     name: accounts
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/certs
   cloud:
     consul:
       host: localhost

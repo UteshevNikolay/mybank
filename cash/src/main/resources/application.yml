@@ -8,6 +8,22 @@ spring:
       discovery:
         register: true
         instance-id: ${spring.application.name}:${random.value}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/certs
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/mybank
+        registration:
+          cash-service:
+            provider: keycloak
+            client-id: cash-service
+            client-secret: cash-secret
+            authorization-grant-type: client_credentials
+            scope: openid
   datasource:
     url: jdbc:postgresql://localhost:5434/cash_db
     username: postgres

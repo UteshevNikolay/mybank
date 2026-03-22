@@ -84,6 +84,24 @@ mybank/
 
 All services run on a shared `mybank-network` bridge network.
 
+## Security (OAuth 2.0 / Keycloak)
+
+Authentication and authorization is handled by Keycloak with the `mybank` realm (auto-imported on startup).
+
+| Flow | Used by | Description |
+|------|---------|-------------|
+| Authorization Code | Frontend | Users log in via Keycloak UI, frontend holds session with JWT |
+| Client Credentials | Cash, Transfer | Service-to-service calls to Accounts and Notifications |
+
+**Keycloak clients:**
+- `mybank-frontend` — Authorization Code Flow (secret: `frontend-secret`)
+- `cash-service` — Client Credentials (secret: `cash-secret`, role: `SERVICE_ACCESS`)
+- `transfer-service` — Client Credentials (secret: `transfer-secret`, role: `SERVICE_ACCESS`)
+
+**Test user:** `user1` / `password`
+
+**Keycloak admin:** http://localhost:8080 (admin / admin)
+
 ## How to Run
 
 ```bash
@@ -96,3 +114,5 @@ docker compose up -d consul keycloak accounts-db cash-db transfer-db notificatio
 # Start everything
 docker compose up -d
 ```
+
+Open http://localhost:8082 — you will be redirected to Keycloak login. Use `user1` / `password`.

@@ -1,6 +1,8 @@
 package com.my.pet.project.mybank.frontend.controller;
 
 import com.my.pet.project.mybank.frontend.client.AccountClient;
+import com.my.pet.project.mybank.frontend.client.CashClient;
+import com.my.pet.project.mybank.frontend.client.TransferClient;
 import com.my.pet.project.mybank.frontend.dto.AccountDto;
 import com.my.pet.project.mybank.frontend.dto.AccountResponse;
 import com.my.pet.project.mybank.frontend.dto.AccountUpdateRequest;
@@ -8,9 +10,8 @@ import com.my.pet.project.mybank.frontend.dto.CashAction;
 import com.my.pet.project.mybank.frontend.dto.CashResponse;
 import com.my.pet.project.mybank.frontend.dto.TransferResponse;
 import com.my.pet.project.mybank.frontend.exception.ServiceException;
-import com.my.pet.project.mybank.frontend.client.CashClient;
-import com.my.pet.project.mybank.frontend.client.TransferClient;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +29,13 @@ public class MainController {
     private final AccountClient accountClient;
     private final CashClient cashClient;
     private final TransferClient transferClient;
-    private final String defaultLogin;
 
     public MainController(AccountClient accountClient,
                           CashClient cashClient,
-                          TransferClient transferClient,
-                          @Value("${frontend.default-login}") String defaultLogin) {
+                          TransferClient transferClient) {
         this.accountClient = accountClient;
         this.cashClient = cashClient;
         this.transferClient = transferClient;
-        this.defaultLogin = defaultLogin;
     }
 
     @GetMapping("/")
@@ -46,11 +44,12 @@ public class MainController {
     }
 
     @GetMapping("/account")
-    public String getAccount(Model model) {
+    public String getAccount(Model model, @AuthenticationPrincipal OidcUser oidcUser) {
+        String login = oidcUser.getPreferredUsername();
         try {
-            AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
+            AccountResponse account = accountClient.getAccountByLogin(login);
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, null, null);
+            fillModel(model, account, allAccounts, login, null, null);
         } catch (ServiceException e) {
             fillEmptyModel(model, List.of(e.getMessage()));
         }
@@ -60,9 +59,11 @@ public class MainController {
     @PostMapping("/account")
     public String editAccount(Model model,
                               @RequestParam("name") String name,
-                              @RequestParam("birthdate") LocalDate birthdate) {
+                              @RequestParam("birthdate") LocalDate birthdate,
+                              @AuthenticationPrincipal OidcUser oidcUser) {
+        String login = oidcUser.getPreferredUsername();
         try {
-            AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
+            AccountResponse account = accountClient.getAccountByLogin(login);
             String[] parts = name.split(" ", 2);
             String lastName = parts[0];
             String firstName = parts.length > 1 ? parts[1] : "";
@@ -71,7 +72,7 @@ public class MainController {
             account = accountClient.updateAccount(account.id(), request);
 
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, null, null);
+            fillModel(model, account, allAccounts, login, null, null);
         } catch (ServiceException e) {
             fillEmptyModel(model, List.of(e.getMessage()));
         }
@@ -81,18 +82,20 @@ public class MainController {
     @PostMapping("/cash")
     public String editCash(Model model,
                            @RequestParam("value") int value,
-                           @RequestParam("action") CashAction action) {
+                           @RequestParam("action") CashAction action,
+                           @AuthenticationPrincipal OidcUser oidcUser) {
+        String login = oidcUser.getPreferredUsername();
         try {
-            AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
+            AccountResponse account = accountClient.getAccountByLogin(login);
             CashResponse cashResponse = cashClient.processCash(account.id(), value, action.name());
-            account = accountClient.getAccountByLogin(defaultLogin);
+            account = accountClient.getAccountByLogin(login);
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, null, cashResponse.message());
+            fillModel(model, account, allAccounts, login, null, cashResponse.message());
         } catch (ServiceException e) {
             try {
-                AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
+                AccountResponse account = accountClient.getAccountByLogin(login);
                 List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-                fillModel(model, account, allAccounts, List.of(e.getMessage()), null);
+                fillModel(model, account, allAccounts, login, List.of(e.getMessage()), null);
             } catch (ServiceException ex) {
                 fillEmptyModel(model, List.of(e.getMessage()));
             }
@@ -103,18 +106,20 @@ public class MainController {
     @PostMapping("/transfer")
     public String transfer(Model model,
                            @RequestParam("value") int value,
-                           @RequestParam("login") String login) {
+                           @RequestParam("login") String toLogin,
+                           @AuthenticationPrincipal OidcUser oidcUser) {
+        String login = oidcUser.getPreferredUsername();
         try {
-            AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
-            TransferResponse transferResponse = transferClient.processTransfer(account.id(), login, value);
-            account = accountClient.getAccountByLogin(defaultLogin);
+            AccountResponse account = accountClient.getAccountByLogin(login);
+            TransferResponse transferResponse = transferClient.processTransfer(account.id(), toLogin, value);
+            account = accountClient.getAccountByLogin(login);
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, null, transferResponse.message());
+            fillModel(model, account, allAccounts, login, null, transferResponse.message());
         } catch (ServiceException e) {
             try {
-                AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
+                AccountResponse account = accountClient.getAccountByLogin(login);
                 List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-                fillModel(model, account, allAccounts, List.of(e.getMessage()), null);
+                fillModel(model, account, allAccounts, login, List.of(e.getMessage()), null);
             } catch (ServiceException ex) {
                 fillEmptyModel(model, List.of(e.getMessage()));
             }
@@ -123,14 +128,14 @@ public class MainController {
     }
 
     private void fillModel(Model model, AccountResponse account, List<AccountResponse> allAccounts,
-                           List<String> errors, String info) {
+                           String currentLogin, List<String> errors, String info) {
         model.addAttribute("name", account.lastName() + " " + account.firstName());
         model.addAttribute("birthdate", account.dateOfBirth() != null
                 ? account.dateOfBirth().format(DateTimeFormatter.ISO_DATE) : "");
         model.addAttribute("sum", account.balance().intValue());
 
         List<AccountDto> accountDtos = allAccounts.stream()
-                .filter(a -> !a.login().equals(defaultLogin))
+                .filter(a -> !a.login().equals(currentLogin))
                 .map(a -> new AccountDto(a.login(), a.lastName() + " " + a.firstName()))
                 .toList();
         model.addAttribute("accounts", accountDtos);

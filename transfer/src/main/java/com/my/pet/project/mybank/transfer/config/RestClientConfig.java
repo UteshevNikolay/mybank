@@ -3,6 +3,15 @@ package com.my.pet.project.mybank.transfer.config;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -15,12 +24,47 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClient accountsRestClient(RestClient.Builder builder) {
-        return builder.clone().baseUrl("http://accounts").build();
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        OAuth2AuthorizedClientService authorizedClientService =
+                new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+        AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
+                new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+                        clientRegistrationRepository, authorizedClientService);
+        manager.setAuthorizedClientProvider(new ClientCredentialsOAuth2AuthorizedClientProvider());
+        return manager;
     }
 
     @Bean
-    public RestClient notificationsRestClient(RestClient.Builder builder) {
-        return builder.clone().baseUrl("http://notifications").build();
+    public RestClient accountsRestClient(RestClient.Builder builder,
+                                          OAuth2AuthorizedClientManager authorizedClientManager) {
+        return builder.clone()
+                .baseUrl("http://accounts")
+                .requestInterceptor(clientCredentialsInterceptor(authorizedClientManager))
+                .build();
+    }
+
+    @Bean
+    public RestClient notificationsRestClient(RestClient.Builder builder,
+                                               OAuth2AuthorizedClientManager authorizedClientManager) {
+        return builder.clone()
+                .baseUrl("http://notifications")
+                .requestInterceptor(clientCredentialsInterceptor(authorizedClientManager))
+                .build();
+    }
+
+    private ClientHttpRequestInterceptor clientCredentialsInterceptor(
+            OAuth2AuthorizedClientManager authorizedClientManager) {
+        return (request, body, execution) -> {
+            OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+                    .withClientRegistrationId("transfer-service")
+                    .principal("transfer-service")
+                    .build();
+            OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
+            if (authorizedClient != null) {
+                request.getHeaders().setBearerAuth(authorizedClient.getAccessToken().getTokenValue());
+            }
+            return execution.execute(request, body);
+        };
     }
 }
