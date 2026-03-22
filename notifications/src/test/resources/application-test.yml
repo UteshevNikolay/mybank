@@ -1,0 +1,18 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
+    loadbalancer:
+      enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9999/not-used
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

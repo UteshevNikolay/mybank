@@ -1,0 +1,14 @@
+description: should return account by id
+request:
+  method: GET
+  url: /accounts/1
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    id: 1
+    login: "user1"
+    firstName: "John"
+    lastName: "Doe"
+    balance: 500.00

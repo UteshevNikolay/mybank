@@ -7,36 +7,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import tools.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {
-        "spring.cloud.consul.enabled=false",
-        "spring.cloud.discovery.enabled=false",
-        "spring.cloud.loadbalancer.enabled=false",
-        "spring.cloud.compatibility-verifier.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:9999/not-used",
-        "spring.main.allow-bean-definition-overriding=true",
-        "spring.autoconfigure.exclude=" +
-                "org.springframework.cloud.autoconfigure.LifecycleMvcEndpointAutoConfiguration," +
-                "org.springframework.cloud.autoconfigure.RefreshAutoConfiguration," +
-                "org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration," +
-                "org.springframework.cloud.client.discovery.simple.SimpleDiscoveryClientAutoConfiguration," +
-                "org.springframework.cloud.client.discovery.composite.CompositeDiscoveryClientAutoConfiguration"
-})
+@SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @Testcontainers
 class NotificationControllerIntegrationTest {
 
@@ -50,7 +38,8 @@ class NotificationControllerIntegrationTest {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    private final JsonMapper jsonMapper = JsonMapper.builder().build();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -64,7 +53,7 @@ class NotificationControllerIntegrationTest {
         mockMvc.perform(post("/notifications")
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_SERVICE_ACCESS")))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         assertThat(notificationRepository.findAll()).hasSize(1);

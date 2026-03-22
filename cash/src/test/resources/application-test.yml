@@ -1,4 +1,9 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
   cloud:
     consul:
       enabled: false
@@ -29,4 +34,7 @@ spring:
   task:
     scheduling:
       pool:
-        size: 0
+        size: 1
+
+rest-client:
+  enabled: false

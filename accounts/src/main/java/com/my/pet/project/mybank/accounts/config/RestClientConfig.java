@@ -1,6 +1,7 @@
 package com.my.pet.project.mybank.accounts.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.web.client.RestClient;
 
 @Configuration
+@ConditionalOnProperty(name = "rest-client.enabled", havingValue = "true", matchIfMissing = true)
 public class RestClientConfig {
 
     @Bean

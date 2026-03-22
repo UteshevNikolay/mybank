@@ -22,9 +22,9 @@ spring:
             issuer-uri: http://localhost:9999/not-used
             token-uri: http://localhost:9999/not-used
         registration:
-          transfer-service:
+          accounts-service:
             provider: keycloak
-            client-id: transfer-service
+            client-id: accounts-service
             client-secret: test-secret
             authorization-grant-type: client_credentials
             scope: openid

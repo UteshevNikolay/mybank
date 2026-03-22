@@ -20,7 +20,7 @@ A microservice-based banking application with a UI that allows users to:
 
 - **Language**: Java 21
 - **Build**: Gradle
-- **Framework**: Spring Web MVC
+- **Framework**: Spring Boot 3.5.12, Spring Web MVC, Spring Cloud 2025.0.0
 - **Data Access**: Spring Data JPA and JDBC (both dependencies included; choice per service TBD)
 - **Database**: PostgreSQL (each microservice has its own DB)
 - **Auth Server**: Keycloak (OAuth 2.0, Authorization Code Flow, JWT access tokens)
@@ -42,12 +42,6 @@ A microservice-based banking application with a UI that allows users to:
 - **Externalized/Distributed Config** — Common configs served centrally
 - **Contract Testing** — Verified inter-service contracts
 - **Single Service per Host** — Each service runs in its own Docker container
-
-## Testing
-
-- **Unit tests** — JUnit 5
-- **Integration tests** — Spring Boot Test, TestContext Framework (with context caching)
-- **Contract tests** — Spring Cloud Contract
 
 ## Project Structure
 
@@ -110,19 +104,21 @@ Authentication and authorization is handled by Keycloak with the `mybank` realm 
 
 ## Testing
 
-Tests are written using JUnit 5, Spring Boot Test, and Testcontainers (requires Docker running).
+Tests are written using JUnit 5, Spring Boot Test, Testcontainers (requires Docker running), and Spring Cloud Contract.
 
-| Module | Unit Tests | Integration Tests | Total |
-|--------|-----------|-------------------|-------|
-| Accounts | AccountServiceTest (8) | AccountControllerIntegrationTest (8) | 16 |
-| Cash | CashServiceTest (3) | CashControllerIntegrationTest (2) | 5 |
-| Transfer | TransferServiceTest (2) | TransferControllerIntegrationTest (2) | 4 |
-| Notifications | NotificationServiceTest (1) | NotificationControllerIntegrationTest (1) | 2 |
-| Frontend | MainControllerTest (3) | — | 3 |
+| Module | Unit Tests | Integration Tests | Contract Tests | Total |
+|--------|-----------|-------------------|----------------|-------|
+| Accounts | AccountServiceTest (8) | AccountControllerIntegrationTest (8) | BaseContractTest — producer (3) | 19 |
+| Cash | CashServiceTest (3) | CashControllerIntegrationTest (2) | AccountClientContractTest — consumer (2) | 7 |
+| Transfer | TransferServiceTest (2) | TransferControllerIntegrationTest (2) | AccountClientContractTest — consumer (3) | 7 |
+| Notifications | NotificationServiceTest (1) | NotificationControllerIntegrationTest (1) | — | 2 |
+| Frontend | MainControllerTest (3) | — | — | 3 |
+
+**Contract testing**: Accounts is the producer — defines API contracts (YAML DSL) and generates stubs. Cash and Transfer are consumers — verify their client code against WireMock stubs via `@AutoConfigureStubRunner`.
 
 Run all tests:
 ```bash
-./gradlew clean test
+./gradlew clean test contractTest
 ```
 
 ## How to Run

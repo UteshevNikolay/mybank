@@ -7,4 +7,5 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     runtimeOnly 'org.postgresql:postgresql'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 }
