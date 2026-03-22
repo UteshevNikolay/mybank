@@ -114,7 +114,20 @@ services:
     environment:
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_DATASOURCE_URL: jdbc:postgresql://cash-db:5432/cash_db
-      ACCOUNTS_SERVICE_URL: http://accounts:8081
+    networks:
+      - mybank-network
+
+  transfer:
+    build: ./transfer
+    container_name: transfer
+    ports:
+      - "8084:8084"
+    depends_on:
+      - consul
+      - transfer-db
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_DATASOURCE_URL: jdbc:postgresql://transfer-db:5432/transfer_db
     networks:
       - mybank-network
 

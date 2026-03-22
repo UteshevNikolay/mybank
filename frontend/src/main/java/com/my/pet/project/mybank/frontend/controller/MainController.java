@@ -6,9 +6,10 @@ import com.my.pet.project.mybank.frontend.dto.AccountResponse;
 import com.my.pet.project.mybank.frontend.dto.AccountUpdateRequest;
 import com.my.pet.project.mybank.frontend.dto.CashAction;
 import com.my.pet.project.mybank.frontend.dto.CashResponse;
+import com.my.pet.project.mybank.frontend.dto.TransferResponse;
 import com.my.pet.project.mybank.frontend.exception.ServiceException;
 import com.my.pet.project.mybank.frontend.client.CashClient;
-import com.my.pet.project.mybank.frontend.stub.TransferStub;
+import com.my.pet.project.mybank.frontend.client.TransferClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,16 +27,16 @@ public class MainController {
 
     private final AccountClient accountClient;
     private final CashClient cashClient;
-    private final TransferStub transferStub;
+    private final TransferClient transferClient;
     private final String defaultLogin;
 
     public MainController(AccountClient accountClient,
                           CashClient cashClient,
-                          TransferStub transferStub,
+                          TransferClient transferClient,
                           @Value("${frontend.default-login}") String defaultLogin) {
         this.accountClient = accountClient;
         this.cashClient = cashClient;
-        this.transferStub = transferStub;
+        this.transferClient = transferClient;
         this.defaultLogin = defaultLogin;
     }
 
@@ -105,10 +106,10 @@ public class MainController {
                            @RequestParam("login") String login) {
         try {
             AccountResponse account = accountClient.getAccountByLogin(defaultLogin);
-            String info = transferStub.processTransfer(account.id(), account.balance(), login, value);
+            TransferResponse transferResponse = transferClient.processTransfer(account.id(), login, value);
             account = accountClient.getAccountByLogin(defaultLogin);
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, null, info);
+            fillModel(model, account, allAccounts, null, transferResponse.message());
         } catch (ServiceException e) {
             try {
                 AccountResponse account = accountClient.getAccountByLogin(defaultLogin);

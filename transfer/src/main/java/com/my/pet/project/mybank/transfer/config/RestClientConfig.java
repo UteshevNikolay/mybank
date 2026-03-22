@@ -1,4 +1,4 @@
-package com.my.pet.project.mybank.cash.config;
+package com.my.pet.project.mybank.transfer.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

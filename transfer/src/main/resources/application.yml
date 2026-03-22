@@ -1,6 +1,6 @@
 spring:
   application:
-    name: cash
+    name: transfer
   cloud:
     consul:
       host: localhost
@@ -9,7 +9,7 @@ spring:
         register: true
         instance-id: ${spring.application.name}:${random.value}
   datasource:
-    url: jdbc:postgresql://localhost:5434/cash_db
+    url: jdbc:postgresql://localhost:5435/transfer_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -22,4 +22,4 @@ spring:
         format_sql: true
 
 server:
-  port: 8083
+  port: 8084

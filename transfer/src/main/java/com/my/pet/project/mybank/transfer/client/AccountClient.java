@@ -1,7 +1,7 @@
-package com.my.pet.project.mybank.cash.client;
+package com.my.pet.project.mybank.transfer.client;
 
-import com.my.pet.project.mybank.cash.dto.AccountResponse;
-import com.my.pet.project.mybank.cash.dto.BalanceUpdateRequest;
+import com.my.pet.project.mybank.transfer.dto.AccountResponse;
+import com.my.pet.project.mybank.transfer.dto.BalanceUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,13 @@ public class AccountClient {
     public AccountResponse getAccountById(Long id) {
         return accountsRestClient.get()
                 .uri("/accounts/{id}", id)
+                .retrieve()
+                .body(AccountResponse.class);
+    }
+
+    public AccountResponse getAccountByLogin(String login) {
+        return accountsRestClient.get()
+                .uri("/accounts/login/{login}", login)
                 .retrieve()
                 .body(AccountResponse.class);
     }
