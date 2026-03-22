@@ -9,7 +9,8 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://localhost:8080/realms/mybank
+            # issuer-uri disabled for local Docker: OIDC discovery fails due to localhost vs keycloak hostname mismatch.
+            # issuer-uri: http://localhost:8080/realms/mybank
             token-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/token
         registration:
           accounts-service:

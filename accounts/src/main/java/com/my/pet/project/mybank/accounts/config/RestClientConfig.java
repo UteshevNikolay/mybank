@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.web.client.RestClient;
 
 @Configuration
+// Disabled in tests (rest-client.enabled=false) to avoid requiring a running Keycloak for OAuth2 client beans.
 @ConditionalOnProperty(name = "rest-client.enabled", havingValue = "true", matchIfMissing = true)
 public class RestClientConfig {
 

@@ -73,6 +73,40 @@
       ]
     },
     {
+      "username": "user2",
+      "enabled": true,
+      "email": "user2@mybank.com",
+      "firstName": "Ivan",
+      "lastName": "Petrov",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    },
+    {
+      "username": "user3",
+      "enabled": true,
+      "email": "user3@mybank.com",
+      "firstName": "Anna",
+      "lastName": "Sidorova",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    },
+    {
       "username": "service-account-cash-service",
       "enabled": true,
       "serviceAccountClientId": "cash-service",

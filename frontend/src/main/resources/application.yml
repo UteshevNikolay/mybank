@@ -13,17 +13,25 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://localhost:8080/realms/mybank
+            # issuer-uri disabled for local Docker: OIDC discovery fails due to localhost vs keycloak hostname mismatch.
+            # issuer-uri: http://localhost:8080/realms/mybank
+            authorization-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/auth
+            token-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/token
+            jwk-set-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/certs
+            user-info-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
         registration:
           keycloak:
             client-id: mybank-frontend
             client-secret: frontend-secret
             scope: openid,profile,email
             authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            # Hardcoded for local Docker: {baseUrl} resolves to container hostname instead of localhost.
+            redirect-uri: http://localhost:8082/login/oauth2/code/{registrationId}
 
 server:
   port: 8082
+  forward-headers-strategy: framework
 
 gateway:
   url: http://localhost:8090
