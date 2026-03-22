@@ -7,12 +7,15 @@ import com.my.pet.project.mybank.accounts.dto.AccountUpdateRequest;
 import com.my.pet.project.mybank.accounts.dto.BalanceUpdateRequest;
 import com.my.pet.project.mybank.accounts.exception.AccountNotFoundException;
 import com.my.pet.project.mybank.accounts.model.Account;
+import com.my.pet.project.mybank.accounts.model.OutboxEvent;
 import com.my.pet.project.mybank.accounts.repository.AccountRepository;
+import com.my.pet.project.mybank.accounts.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,12 +23,23 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final OutboxEventRepository outboxEventRepository;
 
     @Transactional
     public AccountResponse createAccount(AccountCreateRequest request) {
         Account account = AccountMapper.toEntity(request);
         account.setBalance(BigDecimal.ZERO);
         Account saved = accountRepository.save(account);
+
+        OutboxEvent event = new OutboxEvent();
+        event.setEventType("ACCOUNT_CREATED");
+        String message = "Создан аккаунт: %s %s".formatted(saved.getFirstName(), saved.getLastName());
+        event.setPayload("{\"accountId\":%d,\"eventType\":\"%s\",\"message\":\"%s\"}".formatted(
+                saved.getId(), event.getEventType(), message));
+        event.setSent(false);
+        event.setCreatedAt(LocalDateTime.now());
+        outboxEventRepository.save(event);
+
         return AccountMapper.toResponse(saved);
     }
 
@@ -58,6 +72,16 @@ public class AccountService {
         account.setLastName(request.lastName());
         account.setDateOfBirth(request.dateOfBirth());
         Account saved = accountRepository.save(account);
+
+        OutboxEvent event = new OutboxEvent();
+        event.setEventType("ACCOUNT_UPDATED");
+        String message = "Обновлён аккаунт: %s %s".formatted(saved.getFirstName(), saved.getLastName());
+        event.setPayload("{\"accountId\":%d,\"eventType\":\"%s\",\"message\":\"%s\"}".formatted(
+                saved.getId(), event.getEventType(), message));
+        event.setSent(false);
+        event.setCreatedAt(LocalDateTime.now());
+        outboxEventRepository.save(event);
+
         return AccountMapper.toResponse(saved);
     }
 
@@ -67,6 +91,16 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(id));
         account.setBalance(request.newBalance());
         Account saved = accountRepository.save(account);
+
+        OutboxEvent event = new OutboxEvent();
+        event.setEventType("BALANCE_UPDATED");
+        String message = "Баланс обновлён: %s руб".formatted(request.newBalance().toPlainString());
+        event.setPayload("{\"accountId\":%d,\"eventType\":\"%s\",\"message\":\"%s\"}".formatted(
+                saved.getId(), event.getEventType(), message));
+        event.setSent(false);
+        event.setCreatedAt(LocalDateTime.now());
+        outboxEventRepository.save(event);
+
         return AccountMapper.toResponse(saved);
     }
 }

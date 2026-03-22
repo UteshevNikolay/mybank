@@ -6,6 +6,18 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/certs
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/mybank
+            token-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/token
+        registration:
+          accounts-service:
+            provider: keycloak
+            client-id: accounts-service
+            client-secret: accounts-service-secret
+            authorization-grant-type: client_credentials
+            scope: openid
   cloud:
     consul:
       host: localhost

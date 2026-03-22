@@ -100,10 +100,13 @@ services:
     depends_on:
       - consul
       - accounts-db
+      - keycloak
     environment:
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_DATASOURCE_URL: jdbc:postgresql://accounts-db:5432/accounts_db
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/mybank
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/mybank/protocol/openid-connect/token
     networks:
       - mybank-network
 

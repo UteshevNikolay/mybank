@@ -11,7 +11,7 @@ A microservice-based banking application with a UI that allows users to:
 | Service | Description |
 |---------|-------------|
 | **Frontend** | Front UI |
-| **Accounts** | User account data management |
+| **Accounts** | User account data management (with Transactional Outbox for notifications) |
 | **Cash** | Deposit and withdrawal operations |
 | **Transfer** | Money transfers between accounts |
 | **Notifications** | User notifications |
