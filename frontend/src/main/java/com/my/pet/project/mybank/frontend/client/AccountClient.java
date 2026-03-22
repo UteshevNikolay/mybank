@@ -4,6 +4,7 @@ import com.my.pet.project.mybank.frontend.dto.AccountResponse;
 import com.my.pet.project.mybank.frontend.dto.AccountUpdateRequest;
 import com.my.pet.project.mybank.frontend.dto.BalanceUpdateRequest;
 import com.my.pet.project.mybank.frontend.exception.ServiceException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -18,51 +19,55 @@ public class AccountClient {
 
     private final RestClient restClient;
 
+    @CircuitBreaker(name = "accounts", fallbackMethod = "getAccountByLoginFallback")
     public AccountResponse getAccountByLogin(String login) {
-        try {
-            return restClient.get()
-                    .uri("/accounts/accounts/login/{login}", login)
-                    .retrieve()
-                    .body(AccountResponse.class);
-        } catch (Exception e) {
-            throw new ServiceException("Failed to get account by login: " + login, e);
-        }
+        return restClient.get()
+                .uri("/accounts/accounts/login/{login}", login)
+                .retrieve()
+                .body(AccountResponse.class);
     }
 
+    private AccountResponse getAccountByLoginFallback(String login, Throwable t) {
+        throw new ServiceException("Accounts service unavailable", t);
+    }
+
+    @CircuitBreaker(name = "accounts", fallbackMethod = "updateAccountFallback")
     public AccountResponse updateAccount(Long id, AccountUpdateRequest request) {
-        try {
-            return restClient.put()
-                    .uri("/accounts/accounts/{id}", id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(request)
-                    .retrieve()
-                    .body(AccountResponse.class);
-        } catch (Exception e) {
-            throw new ServiceException("Failed to update account: " + id, e);
-        }
+        return restClient.put()
+                .uri("/accounts/accounts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .body(AccountResponse.class);
     }
 
+    private AccountResponse updateAccountFallback(Long id, AccountUpdateRequest request, Throwable t) {
+        throw new ServiceException("Accounts service unavailable", t);
+    }
+
+    @CircuitBreaker(name = "accounts", fallbackMethod = "getAllAccountsFallback")
     public List<AccountResponse> getAllAccounts() {
-        try {
-            return restClient.get()
-                    .uri("/accounts/accounts")
-                    .retrieve()
-                    .body(new ParameterizedTypeReference<>() {});
-        } catch (Exception e) {
-            throw new ServiceException("Failed to get all accounts", e);
-        }
+        return restClient.get()
+                .uri("/accounts/accounts")
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
     }
 
+    private List<AccountResponse> getAllAccountsFallback(Throwable t) {
+        throw new ServiceException("Accounts service unavailable", t);
+    }
+
+    @CircuitBreaker(name = "accounts", fallbackMethod = "updateBalanceFallback")
     public AccountResponse updateBalance(Long id, BalanceUpdateRequest request) {
-        try {
-            return restClient.patch()
-                    .uri("/accounts/accounts/{id}/balance", id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(request)
-                    .retrieve()
-                    .body(AccountResponse.class);
-        } catch (Exception e) {
-            throw new ServiceException("Failed to update balance for account: " + id, e);
-        }
+        return restClient.patch()
+                .uri("/accounts/accounts/{id}/balance", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .body(AccountResponse.class);
+    }
+
+    private AccountResponse updateBalanceFallback(Long id, BalanceUpdateRequest request, Throwable t) {
+        throw new ServiceException("Accounts service unavailable", t);
     }
 }

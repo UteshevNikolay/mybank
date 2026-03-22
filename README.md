@@ -84,6 +84,12 @@ mybank/
 
 All services run on a shared `mybank-network` bridge network.
 
+## Resilience (Circuit Breaker)
+
+Inter-service HTTP calls are protected with Resilience4j Circuit Breaker. When a downstream service is unavailable, the circuit opens after 50% failure rate (sliding window of 10 calls) and returns a fallback error for 10 seconds before retrying.
+
+Protected calls: Frontend → Accounts/Cash/Transfer, Cash → Accounts, Transfer → Accounts.
+
 ## Security (OAuth 2.0 / Keycloak)
 
 Authentication and authorization is handled by Keycloak with the `mybank` realm (auto-imported on startup).

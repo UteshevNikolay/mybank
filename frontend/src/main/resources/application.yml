@@ -27,3 +27,19 @@ server:
 
 gateway:
   url: http://localhost:8090
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+    instances:
+      accounts:
+        base-config: default
+      cash:
+        base-config: default
+      transfer:
+        base-config: default
