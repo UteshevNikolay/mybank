@@ -64,7 +64,7 @@ class CashControllerIntegrationTest {
         mockMvc.perform(post("/cash")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CashRequest(1L, 100, "PUT"))))
+                        .content(objectMapper.writeValueAsString(new CashRequest(1L, new BigDecimal("100"), "PUT"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.newBalance").value(600));
@@ -77,7 +77,7 @@ class CashControllerIntegrationTest {
         mockMvc.perform(post("/cash")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CashRequest(1L, 200, "GET"))))
+                        .content(objectMapper.writeValueAsString(new CashRequest(1L, new BigDecimal("200"), "GET"))))
                 .andExpect(status().isBadRequest());
     }
 }

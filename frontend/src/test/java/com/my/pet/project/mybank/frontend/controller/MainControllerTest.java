@@ -115,7 +115,7 @@ class MainControllerTest {
 
         when(accountClient.getAccountByLogin("testuser")).thenReturn(account);
         when(accountClient.getAllAccounts()).thenReturn(List.of(account));
-        when(cashClient.processCash(1L, 100, "PUT")).thenReturn(cashResponse);
+        when(cashClient.processCash(1L, new BigDecimal("100"), "PUT")).thenReturn(cashResponse);
 
         mockMvc.perform(post("/cash")
                         .with(oidcLogin().oidcUser(oidcUser))
@@ -136,7 +136,7 @@ class MainControllerTest {
 
         when(accountClient.getAccountByLogin("testuser")).thenReturn(account);
         when(accountClient.getAllAccounts()).thenReturn(List.of(account));
-        when(transferClient.processTransfer(1L, "otheruser", 200)).thenReturn(transferResponse);
+        when(transferClient.processTransfer(1L, "otheruser", new BigDecimal("200"))).thenReturn(transferResponse);
 
         mockMvc.perform(post("/transfer")
                         .with(oidcLogin().oidcUser(oidcUser))

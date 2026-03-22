@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class CashClient {
@@ -16,7 +18,7 @@ public class CashClient {
     private final RestClient restClient;
 
     @CircuitBreaker(name = "cash", fallbackMethod = "processCashFallback")
-    public CashResponse processCash(Long accountId, int value, String action) {
+    public CashResponse processCash(Long accountId, BigDecimal value, String action) {
         CashRequest request = new CashRequest(accountId, value, action);
         return restClient.post()
                 .uri("/cash/cash")
@@ -26,7 +28,7 @@ public class CashClient {
                 .body(CashResponse.class);
     }
 
-    private CashResponse processCashFallback(Long accountId, int value, String action, Throwable t) {
+    private CashResponse processCashFallback(Long accountId, BigDecimal value, String action, Throwable t) {
         throw new ServiceException("Cash service unavailable", t);
     }
 }

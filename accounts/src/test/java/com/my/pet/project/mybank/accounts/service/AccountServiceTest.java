@@ -1,5 +1,6 @@
 package com.my.pet.project.mybank.accounts.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.pet.project.mybank.accounts.dto.AccountCreateRequest;
 import com.my.pet.project.mybank.accounts.dto.AccountResponse;
 import com.my.pet.project.mybank.accounts.dto.AccountUpdateRequest;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -35,6 +37,9 @@ class AccountServiceTest {
 
     @Mock
     private OutboxEventRepository outboxEventRepository;
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private AccountService accountService;

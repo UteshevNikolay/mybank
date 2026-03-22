@@ -1,5 +1,6 @@
 package com.my.pet.project.mybank.transfer.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.pet.project.mybank.transfer.client.AccountClient;
 import com.my.pet.project.mybank.transfer.dto.AccountResponse;
 import com.my.pet.project.mybank.transfer.dto.BalanceUpdateRequest;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -41,6 +43,9 @@ class TransferServiceTest {
     @Mock
     private OutboxEventRepository outboxEventRepository;
 
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @InjectMocks
     private TransferService transferService;
 
@@ -61,7 +66,7 @@ class TransferServiceTest {
         when(accountClient.updateBalance(eq(2L), any(BalanceUpdateRequest.class)))
                 .thenReturn(recipientAccount(BigDecimal.valueOf(300)));
 
-        TransferResponse response = transferService.processTransfer(new TransferRequest(1L, "user2", 100));
+        TransferResponse response = transferService.processTransfer(new TransferRequest(1L, "user2", new BigDecimal("100")));
 
         assertThat(response.newBalance()).isEqualByComparingTo(BigDecimal.valueOf(400));
 
@@ -82,7 +87,7 @@ class TransferServiceTest {
     void processTransfer_insufficientFunds() {
         when(accountClient.getAccountById(1L)).thenReturn(senderAccount(BigDecimal.valueOf(50)));
 
-        assertThatThrownBy(() -> transferService.processTransfer(new TransferRequest(1L, "user2", 100)))
+        assertThatThrownBy(() -> transferService.processTransfer(new TransferRequest(1L, "user2", new BigDecimal("100"))))
                 .isInstanceOf(InsufficientFundsException.class);
 
         verify(accountClient, never()).updateBalance(any(), any());

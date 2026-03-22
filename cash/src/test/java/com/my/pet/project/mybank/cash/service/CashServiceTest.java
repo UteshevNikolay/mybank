@@ -1,5 +1,6 @@
 package com.my.pet.project.mybank.cash.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.pet.project.mybank.cash.client.AccountClient;
 import com.my.pet.project.mybank.cash.dto.AccountResponse;
 import com.my.pet.project.mybank.cash.dto.BalanceUpdateRequest;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -40,6 +42,9 @@ class CashServiceTest {
     @Mock
     private OutboxEventRepository outboxEventRepository;
 
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @InjectMocks
     private CashService cashService;
 
@@ -53,7 +58,7 @@ class CashServiceTest {
         when(accountClient.updateBalance(eq(1L), any(BalanceUpdateRequest.class)))
                 .thenReturn(accountWithBalance(BigDecimal.valueOf(600)));
 
-        CashResponse response = cashService.processCash(new CashRequest(1L, 100, "PUT"));
+        CashResponse response = cashService.processCash(new CashRequest(1L, new BigDecimal("100"), "PUT"));
 
         assertThat(response.newBalance()).isEqualByComparingTo(BigDecimal.valueOf(600));
         assertThat(response.message()).contains("100");
@@ -75,7 +80,7 @@ class CashServiceTest {
         when(accountClient.updateBalance(eq(1L), any(BalanceUpdateRequest.class)))
                 .thenReturn(accountWithBalance(BigDecimal.valueOf(450)));
 
-        CashResponse response = cashService.processCash(new CashRequest(1L, 50, "GET"));
+        CashResponse response = cashService.processCash(new CashRequest(1L, new BigDecimal("50"), "GET"));
 
         assertThat(response.newBalance()).isEqualByComparingTo(BigDecimal.valueOf(450));
 
@@ -92,7 +97,7 @@ class CashServiceTest {
     void processCash_withdrawal_insufficientFunds() {
         when(accountClient.getAccountById(1L)).thenReturn(accountWithBalance(BigDecimal.valueOf(500)));
 
-        assertThatThrownBy(() -> cashService.processCash(new CashRequest(1L, 600, "GET")))
+        assertThatThrownBy(() -> cashService.processCash(new CashRequest(1L, new BigDecimal("600"), "GET")))
                 .isInstanceOf(InsufficientFundsException.class);
 
         verify(accountClient, never()).updateBalance(any(), any());

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -81,7 +82,7 @@ public class MainController {
 
     @PostMapping("/cash")
     public String editCash(Model model,
-                           @RequestParam("value") int value,
+                           @RequestParam("value") BigDecimal value,
                            @RequestParam("action") CashAction action,
                            @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
@@ -105,7 +106,7 @@ public class MainController {
 
     @PostMapping("/transfer")
     public String transfer(Model model,
-                           @RequestParam("value") int value,
+                           @RequestParam("value") BigDecimal value,
                            @RequestParam("login") String toLogin,
                            @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();

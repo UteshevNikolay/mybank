@@ -71,7 +71,7 @@ class TransferControllerIntegrationTest {
         mockMvc.perform(post("/transfer")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TransferRequest(1L, "user2", 100))))
+                        .content(objectMapper.writeValueAsString(new TransferRequest(1L, "user2", new BigDecimal("100")))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.newBalance").value(400))
                 .andExpect(jsonPath("$.message").exists());
@@ -84,7 +84,7 @@ class TransferControllerIntegrationTest {
         mockMvc.perform(post("/transfer")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TransferRequest(1L, "user2", 100))))
+                        .content(objectMapper.writeValueAsString(new TransferRequest(1L, "user2", new BigDecimal("100")))))
                 .andExpect(status().isBadRequest());
     }
 }

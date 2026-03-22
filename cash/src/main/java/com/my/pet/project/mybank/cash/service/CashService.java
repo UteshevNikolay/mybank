@@ -1,5 +1,7 @@
 package com.my.pet.project.mybank.cash.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.pet.project.mybank.cash.client.AccountClient;
 import com.my.pet.project.mybank.cash.dto.AccountResponse;
 import com.my.pet.project.mybank.cash.dto.BalanceUpdateRequest;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class CashService {
     private final AccountClient accountClient;
     private final CashOperationRepository cashOperationRepository;
     private final OutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public CashResponse processCash(CashRequest request) {
@@ -33,7 +37,7 @@ public class CashService {
                 ? CashOperationType.WITHDRAWAL
                 : CashOperationType.DEPOSIT;
 
-        BigDecimal amount = BigDecimal.valueOf(request.value());
+        BigDecimal amount = request.value();
         BigDecimal currentBalance = account.balance();
 
         if (type == CashOperationType.WITHDRAWAL && currentBalance.compareTo(amount) < 0) {
@@ -58,16 +62,26 @@ public class CashService {
         String message = type == CashOperationType.DEPOSIT
                 ? "Пополнение счёта на %s руб".formatted(amount.toPlainString())
                 : "Снятие со счёта %s руб".formatted(amount.toPlainString());
-        event.setPayload("{\"accountId\":%d,\"eventType\":\"%s\",\"message\":\"%s\"}".formatted(
-                request.accountId(), event.getEventType(), message));
+        event.setPayload(toJson(Map.of(
+                "accountId", request.accountId(),
+                "eventType", event.getEventType(),
+                "message", message)));
         event.setSent(false);
         event.setCreatedAt(LocalDateTime.now());
         outboxEventRepository.save(event);
 
         String responseMessage = type == CashOperationType.WITHDRAWAL
-                ? "Снято %d руб".formatted(request.value())
-                : "Положено %d руб".formatted(request.value());
+                ? "Снято %s руб".formatted(amount.toPlainString())
+                : "Положено %s руб".formatted(amount.toPlainString());
 
         return new CashResponse(responseMessage, newBalance);
+    }
+
+    private String toJson(Map<String, Object> payload) {
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize outbox event", e);
+        }
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class TransferClient {
@@ -16,7 +18,7 @@ public class TransferClient {
     private final RestClient restClient;
 
     @CircuitBreaker(name = "transfer", fallbackMethod = "processTransferFallback")
-    public TransferResponse processTransfer(Long fromAccountId, String toLogin, int value) {
+    public TransferResponse processTransfer(Long fromAccountId, String toLogin, BigDecimal value) {
         TransferRequest request = new TransferRequest(fromAccountId, toLogin, value);
         return restClient.post()
                 .uri("/transfer/transfer")
@@ -26,7 +28,7 @@ public class TransferClient {
                 .body(TransferResponse.class);
     }
 
-    private TransferResponse processTransferFallback(Long fromAccountId, String toLogin, int value, Throwable t) {
+    private TransferResponse processTransferFallback(Long fromAccountId, String toLogin, BigDecimal value, Throwable t) {
         throw new ServiceException("Transfer service unavailable", t);
     }
 }
