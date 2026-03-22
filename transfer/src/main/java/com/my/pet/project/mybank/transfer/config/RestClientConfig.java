@@ -16,6 +16,11 @@ public class RestClientConfig {
 
     @Bean
     public RestClient accountsRestClient(RestClient.Builder builder) {
-        return builder.baseUrl("http://accounts").build();
+        return builder.clone().baseUrl("http://accounts").build();
+    }
+
+    @Bean
+    public RestClient notificationsRestClient(RestClient.Builder builder) {
+        return builder.clone().baseUrl("http://notifications").build();
     }
 }

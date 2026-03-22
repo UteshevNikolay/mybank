@@ -131,6 +131,20 @@ services:
     networks:
       - mybank-network
 
+  notifications:
+    build: ./notifications
+    container_name: notifications
+    ports:
+      - "8085:8085"
+    depends_on:
+      - consul
+      - notifications-db
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notifications-db:5432/notifications_db
+    networks:
+      - mybank-network
+
   frontend:
     build: ./frontend
     container_name: frontend

@@ -6,9 +6,10 @@ import com.my.pet.project.mybank.transfer.dto.BalanceUpdateRequest;
 import com.my.pet.project.mybank.transfer.dto.TransferRequest;
 import com.my.pet.project.mybank.transfer.dto.TransferResponse;
 import com.my.pet.project.mybank.transfer.exception.InsufficientFundsException;
+import com.my.pet.project.mybank.transfer.model.OutboxEvent;
 import com.my.pet.project.mybank.transfer.model.TransferOperation;
+import com.my.pet.project.mybank.transfer.repository.OutboxEventRepository;
 import com.my.pet.project.mybank.transfer.repository.TransferOperationRepository;
-import com.my.pet.project.mybank.transfer.stub.NotificationStub;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ public class TransferService {
 
     private final AccountClient accountClient;
     private final TransferOperationRepository transferOperationRepository;
-    private final NotificationStub notificationStub;
+    private final OutboxEventRepository outboxEventRepository;
 
     @Transactional
     public TransferResponse processTransfer(TransferRequest request) {
@@ -48,9 +49,24 @@ public class TransferService {
         operation.setCreatedAt(LocalDateTime.now());
         transferOperationRepository.save(operation);
 
-        notificationStub.notifyTransfer(sender.id(), recipient.id(), amount);
-
         String recipientName = recipient.lastName() + " " + recipient.firstName();
+
+        OutboxEvent senderEvent = new OutboxEvent();
+        senderEvent.setEventType("TRANSFER_SENT");
+        senderEvent.setPayload("{\"accountId\":%d,\"eventType\":\"TRANSFER_SENT\",\"message\":\"Перевод %s руб клиенту %s\"}".formatted(
+                sender.id(), amount.toPlainString(), recipientName));
+        senderEvent.setSent(false);
+        senderEvent.setCreatedAt(LocalDateTime.now());
+        outboxEventRepository.save(senderEvent);
+
+        OutboxEvent recipientEvent = new OutboxEvent();
+        recipientEvent.setEventType("TRANSFER_RECEIVED");
+        recipientEvent.setPayload("{\"accountId\":%d,\"eventType\":\"TRANSFER_RECEIVED\",\"message\":\"Получен перевод %s руб\"}".formatted(
+                recipient.id(), amount.toPlainString()));
+        recipientEvent.setSent(false);
+        recipientEvent.setCreatedAt(LocalDateTime.now());
+        outboxEventRepository.save(recipientEvent);
+
         String message = "Успешно переведено %d руб клиенту %s".formatted(request.value(), recipientName);
 
         return new TransferResponse(message, newSenderBalance);

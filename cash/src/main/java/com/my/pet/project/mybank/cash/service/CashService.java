@@ -8,8 +8,9 @@ import com.my.pet.project.mybank.cash.dto.CashResponse;
 import com.my.pet.project.mybank.cash.exception.InsufficientFundsException;
 import com.my.pet.project.mybank.cash.model.CashOperation;
 import com.my.pet.project.mybank.cash.model.CashOperationType;
+import com.my.pet.project.mybank.cash.model.OutboxEvent;
 import com.my.pet.project.mybank.cash.repository.CashOperationRepository;
-import com.my.pet.project.mybank.cash.stub.NotificationStub;
+import com.my.pet.project.mybank.cash.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class CashService {
 
     private final AccountClient accountClient;
     private final CashOperationRepository cashOperationRepository;
-    private final NotificationStub notificationStub;
+    private final OutboxEventRepository outboxEventRepository;
 
     @Transactional
     public CashResponse processCash(CashRequest request) {
@@ -52,12 +53,21 @@ public class CashService {
         operation.setCreatedAt(LocalDateTime.now());
         cashOperationRepository.save(operation);
 
-        notificationStub.notifyCashOperation(request.accountId(), amount, type);
+        OutboxEvent event = new OutboxEvent();
+        event.setEventType(type == CashOperationType.DEPOSIT ? "CASH_DEPOSIT" : "CASH_WITHDRAWAL");
+        String message = type == CashOperationType.DEPOSIT
+                ? "Пополнение счёта на %s руб".formatted(amount.toPlainString())
+                : "Снятие со счёта %s руб".formatted(amount.toPlainString());
+        event.setPayload("{\"accountId\":%d,\"eventType\":\"%s\",\"message\":\"%s\"}".formatted(
+                request.accountId(), event.getEventType(), message));
+        event.setSent(false);
+        event.setCreatedAt(LocalDateTime.now());
+        outboxEventRepository.save(event);
 
-        String message = type == CashOperationType.WITHDRAWAL
+        String responseMessage = type == CashOperationType.WITHDRAWAL
                 ? "Снято %d руб".formatted(request.value())
                 : "Положено %d руб".formatted(request.value());
 
-        return new CashResponse(message, newBalance);
+        return new CashResponse(responseMessage, newBalance);
     }
 }
