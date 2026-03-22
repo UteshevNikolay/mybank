@@ -108,6 +108,23 @@ Authentication and authorization is handled by Keycloak with the `mybank` realm 
 
 **Keycloak admin:** http://localhost:8080 (admin / admin)
 
+## Testing
+
+Tests are written using JUnit 5, Spring Boot Test, and Testcontainers (requires Docker running).
+
+| Module | Unit Tests | Integration Tests | Total |
+|--------|-----------|-------------------|-------|
+| Accounts | AccountServiceTest (8) | AccountControllerIntegrationTest (8) | 16 |
+| Cash | CashServiceTest (3) | CashControllerIntegrationTest (2) | 5 |
+| Transfer | TransferServiceTest (2) | TransferControllerIntegrationTest (2) | 4 |
+| Notifications | NotificationServiceTest (1) | NotificationControllerIntegrationTest (1) | 2 |
+| Frontend | MainControllerTest (3) | — | 3 |
+
+Run all tests:
+```bash
+./gradlew clean test
+```
+
 ## How to Run
 
 ```bash
