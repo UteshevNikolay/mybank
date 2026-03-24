@@ -1,0 +1,8 @@
+rootProject.name = 'mybank'
+
+include 'gateway'
+include 'accounts'
+include 'frontend'
+include 'cash'
+include 'transfer'
+include 'notifications'

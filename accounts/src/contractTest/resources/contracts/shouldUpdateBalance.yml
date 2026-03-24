@@ -1,0 +1,18 @@
+description: should update account balance
+request:
+  method: PATCH
+  url: /accounts/1/balance
+  headers:
+    Content-Type: application/json
+  body:
+    newBalance: 600.00
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    id: 1
+    login: "user1"
+    firstName: "John"
+    lastName: "Doe"
+    balance: 600.00

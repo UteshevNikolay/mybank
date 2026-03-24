@@ -1,0 +1,29 @@
+plugins {
+    id 'org.springframework.cloud.contract' version '4.3.0'
+    id 'maven-publish'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact bootJar
+            artifact verifierStubsJar
+        }
+    }
+}
+
+contracts {
+    baseClassForTests = 'com.my.pet.project.mybank.accounts.contract.BaseContractTest'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    runtimeOnly 'org.postgresql:postgresql'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+}

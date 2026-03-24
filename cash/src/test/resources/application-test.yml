@@ -1,0 +1,40 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+  cloud:
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
+    loadbalancer:
+      enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9999/not-used
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9999/not-used
+            token-uri: http://localhost:9999/not-used
+        registration:
+          cash-service:
+            provider: keycloak
+            client-id: cash-service
+            client-secret: test-secret
+            authorization-grant-type: client_credentials
+            scope: openid
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  task:
+    scheduling:
+      pool:
+        size: 1
+
+rest-client:
+  enabled: false

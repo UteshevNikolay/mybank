@@ -1,0 +1,126 @@
+{
+  "realm": "mybank",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "USER",
+        "description": "Regular user role"
+      },
+      {
+        "name": "SERVICE_ACCESS",
+        "description": "Service-to-service access role"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "mybank-frontend",
+      "secret": "frontend-secret",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "http://localhost:8082/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8082"
+      ]
+    },
+    {
+      "clientId": "cash-service",
+      "secret": "cash-secret",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret"
+    },
+    {
+      "clientId": "transfer-service",
+      "secret": "transfer-secret",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret"
+    }
+  ],
+  "users": [
+    {
+      "username": "user1",
+      "enabled": true,
+      "email": "user1@mybank.com",
+      "firstName": "Test",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    },
+    {
+      "username": "user2",
+      "enabled": true,
+      "email": "user2@mybank.com",
+      "firstName": "Ivan",
+      "lastName": "Petrov",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    },
+    {
+      "username": "user3",
+      "enabled": true,
+      "email": "user3@mybank.com",
+      "firstName": "Anna",
+      "lastName": "Sidorova",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    },
+    {
+      "username": "service-account-cash-service",
+      "enabled": true,
+      "serviceAccountClientId": "cash-service",
+      "realmRoles": [
+        "SERVICE_ACCESS"
+      ]
+    },
+    {
+      "username": "service-account-transfer-service",
+      "enabled": true,
+      "serviceAccountClientId": "transfer-service",
+      "realmRoles": [
+        "SERVICE_ACCESS"
+      ]
+    }
+  ]
+}
