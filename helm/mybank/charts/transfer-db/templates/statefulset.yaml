@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-transfer-db
+  labels:
+    app: transfer-db
+spec:
+  serviceName: {{ .Release.Name }}-transfer-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transfer-db
+  template:
+    metadata:
+      labels:
+        app: transfer-db
+    spec:
+      containers:
+        - name: postgres
+          image: "postgres:{{ .Values.global.postgres.tag }}"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-transfer-db-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-transfer-db-secret
+                  key: password
+            - name: POSTGRES_DB
+              value: transfer_db
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 1Gi

@@ -1,6 +1,6 @@
 package com.my.pet.project.mybank.cash.config;
 
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,15 +16,8 @@ import org.springframework.security.oauth2.client.ClientCredentialsOAuth2Authori
 import org.springframework.web.client.RestClient;
 
 @Configuration
-// Disabled in tests (rest-client.enabled=false) to avoid requiring a running Keycloak for OAuth2 client beans.
 @ConditionalOnProperty(name = "rest-client.enabled", havingValue = "true", matchIfMissing = true)
 public class RestClientConfig {
-
-    @Bean
-    @LoadBalanced
-    public RestClient.Builder restClientBuilder() {
-        return RestClient.builder();
-    }
 
     @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
@@ -39,19 +32,19 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClient accountsRestClient(RestClient.Builder builder,
+    public RestClient accountsRestClient(@Value("${accounts.url}") String accountsUrl,
                                           OAuth2AuthorizedClientManager authorizedClientManager) {
-        return builder.clone()
-                .baseUrl("http://accounts")
+        return RestClient.builder()
+                .baseUrl(accountsUrl)
                 .requestInterceptor(clientCredentialsInterceptor(authorizedClientManager))
                 .build();
     }
 
     @Bean
-    public RestClient notificationsRestClient(RestClient.Builder builder,
+    public RestClient notificationsRestClient(@Value("${notifications.url}") String notificationsUrl,
                                                OAuth2AuthorizedClientManager authorizedClientManager) {
-        return builder.clone()
-                .baseUrl("http://notifications")
+        return RestClient.builder()
+                .baseUrl(notificationsUrl)
                 .requestInterceptor(clientCredentialsInterceptor(authorizedClientManager))
                 .build();
     }

@@ -15,13 +15,13 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class TransferClient {
 
-    private final RestClient restClient;
+    private final RestClient transferRestClient;
 
     @CircuitBreaker(name = "transfer", fallbackMethod = "processTransferFallback")
     public TransferResponse processTransfer(Long fromAccountId, String toLogin, BigDecimal value) {
         TransferRequest request = new TransferRequest(fromAccountId, toLogin, value);
-        return restClient.post()
-                .uri("/transfer/transfer")
+        return transferRestClient.post()
+                .uri("/transfer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()

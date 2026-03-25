@@ -5,31 +5,22 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/certs
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/certs}
       client:
         provider:
           keycloak:
-            # issuer-uri disabled for local Docker: OIDC discovery fails due to localhost vs keycloak hostname mismatch.
-            # issuer-uri: http://localhost:8080/realms/mybank
-            token-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/token
+            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/token}
         registration:
           accounts-service:
             provider: keycloak
             client-id: accounts-service
-            client-secret: accounts-service-secret
+            client-secret: ${ACCOUNTS_SERVICE_CLIENT_SECRET:accounts-service-secret}
             authorization-grant-type: client_credentials
             scope: openid
-  cloud:
-    consul:
-      host: localhost
-      port: 8500
-      discovery:
-        register: true
-        instance-id: ${spring.application.name}:${random.value}
   datasource:
-    url: jdbc:postgresql://localhost:5433/accounts_db
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/accounts_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -41,3 +32,12 @@ spring:
 
 server:
   port: 8081
+
+notifications:
+  url: ${NOTIFICATIONS_URL:http://localhost:8085}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

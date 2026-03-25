@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -34,26 +35,46 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClient restClient(@Value("${gateway.url}") String gatewayUrl,
-                                  OAuth2AuthorizedClientManager authorizedClientManager) {
+    public RestClient accountsRestClient(@Value("${accounts.url}") String accountsUrl,
+                                          OAuth2AuthorizedClientManager authorizedClientManager) {
+        return buildRestClient(accountsUrl, authorizedClientManager);
+    }
+
+    @Bean
+    public RestClient cashRestClient(@Value("${cash.url}") String cashUrl,
+                                      OAuth2AuthorizedClientManager authorizedClientManager) {
+        return buildRestClient(cashUrl, authorizedClientManager);
+    }
+
+    @Bean
+    public RestClient transferRestClient(@Value("${transfer.url}") String transferUrl,
+                                          OAuth2AuthorizedClientManager authorizedClientManager) {
+        return buildRestClient(transferUrl, authorizedClientManager);
+    }
+
+    private RestClient buildRestClient(String baseUrl, OAuth2AuthorizedClientManager authorizedClientManager) {
         return RestClient.builder()
-                .baseUrl(gatewayUrl)
-                .requestInterceptor((request, body, execution) -> {
-                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                    if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
-                        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-                                .withClientRegistrationId(oauthToken.getAuthorizedClientRegistrationId())
-                                .principal(authentication)
-                                .build();
-                        OAuth2AuthorizedClient authorizedClient =
-                                authorizedClientManager.authorize(authorizeRequest);
-                        if (authorizedClient != null) {
-                            request.getHeaders().setBearerAuth(
-                                    authorizedClient.getAccessToken().getTokenValue());
-                        }
-                    }
-                    return execution.execute(request, body);
-                })
+                .baseUrl(baseUrl)
+                .requestInterceptor(oauth2Interceptor(authorizedClientManager))
                 .build();
+    }
+
+    private ClientHttpRequestInterceptor oauth2Interceptor(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return (request, body, execution) -> {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+                OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+                        .withClientRegistrationId(oauthToken.getAuthorizedClientRegistrationId())
+                        .principal(authentication)
+                        .build();
+                OAuth2AuthorizedClient authorizedClient =
+                        authorizedClientManager.authorize(authorizeRequest);
+                if (authorizedClient != null) {
+                    request.getHeaders().setBearerAuth(
+                            authorizedClient.getAccessToken().getTokenValue());
+                }
+            }
+            return execution.execute(request, body);
+        };
     }
 }

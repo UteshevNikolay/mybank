@@ -1,0 +1,4 @@
+apiVersion: v2
+name: cash
+description: Cash microservice
+version: 0.1.0

@@ -1,0 +1,4 @@
+apiVersion: v2
+name: accounts-db
+description: PostgreSQL database for Accounts service
+version: 0.1.0

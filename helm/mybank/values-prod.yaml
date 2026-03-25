@@ -1,0 +1,20 @@
+global:
+  postgres:
+    password: CHANGE_ME_IN_PRODUCTION
+
+  keycloak:
+    externalHost: keycloak.mybank.prod
+    adminPassword: CHANGE_ME_IN_PRODUCTION
+
+  frontend:
+    externalHost: frontend.mybank.prod
+    clientSecret: CHANGE_ME_IN_PRODUCTION
+
+  accounts:
+    clientSecret: CHANGE_ME_IN_PRODUCTION
+
+  cash:
+    clientSecret: CHANGE_ME_IN_PRODUCTION
+
+  transfer:
+    clientSecret: CHANGE_ME_IN_PRODUCTION

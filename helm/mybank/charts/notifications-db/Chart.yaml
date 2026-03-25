@@ -1,0 +1,4 @@
+apiVersion: v2
+name: notifications-db
+description: PostgreSQL database for Notifications service
+version: 0.1.0

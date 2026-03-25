@@ -17,12 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountClient {
 
-    private final RestClient restClient;
+    private final RestClient accountsRestClient;
 
     @CircuitBreaker(name = "accounts", fallbackMethod = "getAccountByLoginFallback")
     public AccountResponse getAccountByLogin(String login) {
-        return restClient.get()
-                .uri("/accounts/accounts/login/{login}", login)
+        return accountsRestClient.get()
+                .uri("/accounts/login/{login}", login)
                 .retrieve()
                 .body(AccountResponse.class);
     }
@@ -33,8 +33,8 @@ public class AccountClient {
 
     @CircuitBreaker(name = "accounts", fallbackMethod = "updateAccountFallback")
     public AccountResponse updateAccount(Long id, AccountUpdateRequest request) {
-        return restClient.put()
-                .uri("/accounts/accounts/{id}", id)
+        return accountsRestClient.put()
+                .uri("/accounts/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
@@ -47,8 +47,8 @@ public class AccountClient {
 
     @CircuitBreaker(name = "accounts", fallbackMethod = "getAllAccountsFallback")
     public List<AccountResponse> getAllAccounts() {
-        return restClient.get()
-                .uri("/accounts/accounts")
+        return accountsRestClient.get()
+                .uri("/accounts")
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
     }
@@ -59,8 +59,8 @@ public class AccountClient {
 
     @CircuitBreaker(name = "accounts", fallbackMethod = "updateBalanceFallback")
     public AccountResponse updateBalance(Long id, BalanceUpdateRequest request) {
-        return restClient.patch()
-                .uri("/accounts/accounts/{id}/balance", id)
+        return accountsRestClient.patch()
+                .uri("/accounts/{id}/balance", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
