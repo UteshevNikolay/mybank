@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-frontend-config
 data:
-  ACCOUNTS_URL: "http://{{ .Release.Name }}-accounts:8081"
-  CASH_URL: "http://{{ .Release.Name }}-cash:8083"
-  TRANSFER_URL: "http://{{ .Release.Name }}-transfer:8084"
+  ACCOUNTS_URL: "http://{{ .Release.Name }}-gateway"
+  CASH_URL: "http://{{ .Release.Name }}-gateway"
+  TRANSFER_URL: "http://{{ .Release.Name }}-gateway"
   KEYCLOAK_AUTHORIZATION_URI: "http://{{ .Values.global.keycloak.externalHost }}/realms/mybank/protocol/openid-connect/auth"
   KEYCLOAK_TOKEN_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/token"
   KEYCLOAK_JWK_SET_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/certs"

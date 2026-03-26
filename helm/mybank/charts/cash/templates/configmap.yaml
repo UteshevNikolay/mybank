@@ -6,5 +6,5 @@ data:
   SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ .Release.Name }}-cash-db:5432/cash_db"
   KEYCLOAK_JWK_SET_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/certs"
   KEYCLOAK_TOKEN_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/token"
-  ACCOUNTS_URL: "http://{{ .Release.Name }}-accounts:8081"
-  NOTIFICATIONS_URL: "http://{{ .Release.Name }}-notifications:8085"
+  ACCOUNTS_URL: "http://{{ .Release.Name }}-gateway"
+  NOTIFICATIONS_URL: "http://{{ .Release.Name }}-gateway"

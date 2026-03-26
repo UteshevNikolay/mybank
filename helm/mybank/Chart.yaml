@@ -24,5 +24,7 @@ dependencies:
     version: 0.1.0
   - name: notifications
     version: 0.1.0
+  - name: gateway
+    version: 0.1.0
   - name: frontend
     version: 0.1.0

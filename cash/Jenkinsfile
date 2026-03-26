@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = credentials('docker-registry-url')
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Validate') {
+            steps {
+                sh './gradlew :cash:compileJava'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh './gradlew :cash:build -x test'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh './gradlew :cash:test'
+            }
+            post {
+                always {
+                    junit 'cash/build/test-results/test/*.xml'
+                }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                sh "docker build -t ${DOCKER_REGISTRY}/mybank/cash:${IMAGE_TAG} ./cash"
+                sh "docker push ${DOCKER_REGISTRY}/mybank/cash:${IMAGE_TAG}"
+            }
+        }
+
+        stage('Deploy to Test') {
+            steps {
+                sh '''
+                    helm dependency update helm/mybank
+                    helm upgrade --install mybank helm/mybank \
+                        -f helm/mybank/values-test.yaml \
+                        --set global.cash.image.repository=${DOCKER_REGISTRY}/mybank/cash \
+                        --set global.cash.image.tag=${IMAGE_TAG} \
+                        -n test --create-namespace
+                '''
+            }
+        }
+
+        stage('Helm Test') {
+            steps {
+                sh 'helm test mybank -n test --timeout 120s'
+            }
+        }
+
+        stage('Approve Production') {
+            steps {
+                input message: 'Deploy to production?', ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                sh '''
+                    helm upgrade --install mybank helm/mybank \
+                        -f helm/mybank/values-prod.yaml \
+                        --set global.cash.image.repository=${DOCKER_REGISTRY}/mybank/cash \
+                        --set global.cash.image.tag=${IMAGE_TAG} \
+                        -n prod --create-namespace
+                '''
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Pipeline failed!'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+    }
+}

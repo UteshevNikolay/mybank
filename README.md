@@ -32,7 +32,7 @@ A microservice-based banking application with a UI that allows users to:
 
 ## Architecture & Patterns
 
-- **Ingress** — Kubernetes Ingress for external access to Frontend and Keycloak
+- **Gateway API** — Traefik Ingress for external access (Frontend, Keycloak) and internal API gateway for inter-service routing
 - **Service Discovery** — Kubernetes Services provide DNS-based service resolution
 - **Circuit Breaker** — Resilient inter-service calls via Resilience4j
 - **RPI (Remote Procedure Invocation)** — Synchronous inter-service communication via RestClient
@@ -77,6 +77,7 @@ The application is packaged as an umbrella Helm chart with sub-charts for each c
 | notifications-db | StatefulSet | PostgreSQL for Notifications service |
 | keycloak-db | StatefulSet | PostgreSQL for Keycloak |
 | keycloak | Deployment | Keycloak OAuth2 Authorization Server |
+| gateway | Ingress + Service | API Gateway — Traefik Ingress routing for inter-service communication |
 | accounts | Deployment | Accounts microservice |
 | cash | Deployment | Cash microservice |
 | transfer | Deployment | Transfer microservice |
@@ -89,7 +90,7 @@ Each sub-chart can be deployed independently or together via the umbrella chart.
 
 Inter-service HTTP calls are protected with Resilience4j Circuit Breaker. When a downstream service is unavailable, the circuit opens after 50% failure rate (sliding window of 10 calls) and returns a fallback error for 10 seconds before retrying.
 
-Protected calls: Frontend → Accounts/Cash/Transfer, Cash → Accounts, Transfer → Accounts.
+Protected calls: Frontend → Gateway → Accounts/Cash/Transfer, Cash → Gateway → Accounts, Transfer → Gateway → Accounts.
 
 ## Security (OAuth 2.0 / Keycloak)
 
@@ -139,6 +140,32 @@ Run Helm tests (after deployment):
 ```bash
 helm test mybank -n <namespace>
 ```
+
+## CI/CD (Jenkins)
+
+Jenkins pipelines are defined as Jenkinsfiles stored in Git:
+
+| Jenkinsfile | Scope | Description |
+|-------------|-------|-------------|
+| `Jenkinsfile` | All services | Umbrella pipeline — validates, builds, tests, and deploys all microservices |
+| `accounts/Jenkinsfile` | Accounts | Individual pipeline for the Accounts service |
+| `cash/Jenkinsfile` | Cash | Individual pipeline for the Cash service |
+| `transfer/Jenkinsfile` | Transfer | Individual pipeline for the Transfer service |
+| `notifications/Jenkinsfile` | Notifications | Individual pipeline for the Notifications service |
+| `frontend/Jenkinsfile` | Frontend | Individual pipeline for the Frontend service |
+
+**Pipeline stages:**
+
+1. **Validate** — compile Java sources
+2. **Build** — produce JAR artifacts
+3. **Test** — run unit, integration, and contract tests
+4. **Docker Build & Push** — build and push Docker images to registry
+5. **Deploy to Test** — deploy to `test` namespace via Helm
+6. **Helm Test** — run health checks in test environment
+7. **Approve Production** — manual approval gate
+8. **Deploy to Production** — deploy to `prod` namespace via Helm
+
+Per-service pipelines deploy only the changed service image; the umbrella pipeline deploys all services together.
 
 ## Prerequisites
 

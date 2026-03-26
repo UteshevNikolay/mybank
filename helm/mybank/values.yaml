@@ -1,4 +1,7 @@
 global:
+  gateway:
+    traefikService: traefik.kube-system.svc.cluster.local
+
   postgres:
     tag: "17"
     username: postgres

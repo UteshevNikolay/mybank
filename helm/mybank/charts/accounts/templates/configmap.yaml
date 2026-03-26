@@ -6,4 +6,4 @@ data:
   SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ .Release.Name }}-accounts-db:5432/accounts_db"
   KEYCLOAK_JWK_SET_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/certs"
   KEYCLOAK_TOKEN_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/token"
-  NOTIFICATIONS_URL: "http://{{ .Release.Name }}-notifications:8085"
+  NOTIFICATIONS_URL: "http://{{ .Release.Name }}-gateway"
