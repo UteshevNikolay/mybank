@@ -7,6 +7,10 @@ global:
     username: postgres
     password: postgres
 
+  kafka:
+    image:
+      tag: "3.9.0"
+
   keycloak:
     tag: "26.2"
     externalHost: keycloak.mybank.local

@@ -4,4 +4,4 @@ metadata:
   name: {{ .Release.Name }}-notifications-config
 data:
   SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ .Release.Name }}-notifications-db:5432/notifications_db"
-  KEYCLOAK_JWK_SET_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/certs"
+  KAFKA_BOOTSTRAP_SERVERS: "{{ .Release.Name }}-kafka:9092"

@@ -4,6 +4,7 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
   security:
     oauth2:
       resourceserver:
@@ -40,7 +41,4 @@ stubrunner:
       enabled: false
 
 accounts:
-  url: http://localhost:9999/not-used
-
-notifications:
   url: http://localhost:9999/not-used

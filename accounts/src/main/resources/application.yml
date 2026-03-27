@@ -6,17 +6,6 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/certs}
-      client:
-        provider:
-          keycloak:
-            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/token}
-        registration:
-          accounts-service:
-            provider: keycloak
-            client-id: accounts-service
-            client-secret: ${ACCOUNTS_SERVICE_CLIENT_SECRET:accounts-service-secret}
-            authorization-grant-type: client_credentials
-            scope: openid
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/accounts_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -29,12 +18,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
   port: 8081
-
-notifications:
-  url: ${NOTIFICATIONS_URL:http://localhost:8085}
 
 management:
   endpoints:
