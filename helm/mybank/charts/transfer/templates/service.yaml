@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-transfer
+spec:
+  selector:
+    app: transfer
+  ports:
+    - port: 8084
+      targetPort: 8084

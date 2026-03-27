@@ -1,0 +1,6 @@
+global:
+  keycloak:
+    externalHost: keycloak.mybank.test
+
+  frontend:
+    externalHost: frontend.mybank.test

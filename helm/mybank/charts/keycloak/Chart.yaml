@@ -1,0 +1,4 @@
+apiVersion: v2
+name: keycloak
+description: Keycloak OAuth2 Authorization Server
+version: 0.1.0

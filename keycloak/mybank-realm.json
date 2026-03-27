@@ -25,10 +25,12 @@
       "protocol": "openid-connect",
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:8082/*"
+        "http://localhost:8082/*",
+        "http://frontend.mybank.local/*"
       ],
       "webOrigins": [
-        "http://localhost:8082"
+        "http://localhost:8082",
+        "http://frontend.mybank.local"
       ]
     },
     {
@@ -45,6 +47,17 @@
     {
       "clientId": "transfer-service",
       "secret": "transfer-secret",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret"
+    },
+    {
+      "clientId": "accounts-service",
+      "secret": "accounts-service-secret",
       "enabled": true,
       "publicClient": false,
       "standardFlowEnabled": false,
@@ -118,6 +131,14 @@
       "username": "service-account-transfer-service",
       "enabled": true,
       "serviceAccountClientId": "transfer-service",
+      "realmRoles": [
+        "SERVICE_ACCESS"
+      ]
+    },
+    {
+      "username": "service-account-accounts-service",
+      "enabled": true,
+      "serviceAccountClientId": "accounts-service",
       "realmRoles": [
         "SERVICE_ACCESS"
       ]

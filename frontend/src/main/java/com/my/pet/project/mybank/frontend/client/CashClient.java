@@ -15,13 +15,13 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class CashClient {
 
-    private final RestClient restClient;
+    private final RestClient cashRestClient;
 
     @CircuitBreaker(name = "cash", fallbackMethod = "processCashFallback")
     public CashResponse processCash(Long accountId, BigDecimal value, String action) {
         CashRequest request = new CashRequest(accountId, value, action);
-        return restClient.post()
-                .uri("/cash/cash")
+        return cashRestClient.post()
+                .uri("/cash")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()

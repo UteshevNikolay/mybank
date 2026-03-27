@@ -1,0 +1,30 @@
+apiVersion: v2
+name: mybank
+description: MyBank microservices application
+version: 0.1.0
+type: application
+dependencies:
+  - name: keycloak-db
+    version: 0.1.0
+  - name: keycloak
+    version: 0.1.0
+  - name: accounts-db
+    version: 0.1.0
+  - name: cash-db
+    version: 0.1.0
+  - name: transfer-db
+    version: 0.1.0
+  - name: notifications-db
+    version: 0.1.0
+  - name: accounts
+    version: 0.1.0
+  - name: cash
+    version: 0.1.0
+  - name: transfer
+    version: 0.1.0
+  - name: notifications
+    version: 0.1.0
+  - name: gateway
+    version: 0.1.0
+  - name: frontend
+    version: 0.1.0

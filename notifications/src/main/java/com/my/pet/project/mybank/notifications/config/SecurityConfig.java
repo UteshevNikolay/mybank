@@ -16,6 +16,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().hasAuthority("ROLE_SERVICE_ACCESS")
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

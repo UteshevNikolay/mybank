@@ -4,13 +4,6 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
-  cloud:
-    consul:
-      enabled: false
-      discovery:
-        enabled: false
-    loadbalancer:
-      enabled: false
   security:
     oauth2:
       resourceserver:
@@ -38,3 +31,6 @@ spring:
 
 rest-client:
   enabled: false
+
+notifications:
+  url: http://localhost:9999/not-used

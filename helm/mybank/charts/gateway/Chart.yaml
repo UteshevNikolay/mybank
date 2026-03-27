@@ -1,0 +1,4 @@
+apiVersion: v2
+name: gateway
+description: API Gateway via Traefik Ingress for inter-service routing
+version: 0.1.0

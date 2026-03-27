@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-transfer-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ .Release.Name }}-transfer-db:5432/transfer_db"
+  KEYCLOAK_JWK_SET_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/certs"
+  KEYCLOAK_TOKEN_URI: "http://{{ .Release.Name }}-keycloak:8080/realms/mybank/protocol/openid-connect/token"
+  ACCOUNTS_URL: "http://{{ .Release.Name }}-gateway"
+  NOTIFICATIONS_URL: "http://{{ .Release.Name }}-gateway"

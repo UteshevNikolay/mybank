@@ -1,40 +1,36 @@
 spring:
   application:
     name: frontend
-  cloud:
-    consul:
-      host: localhost
-      port: 8500
-      discovery:
-        register: true
-        instance-id: ${spring.application.name}:${random.value}
   security:
     oauth2:
       client:
         provider:
           keycloak:
-            # issuer-uri disabled for local Docker: OIDC discovery fails due to localhost vs keycloak hostname mismatch.
-            # issuer-uri: http://localhost:8080/realms/mybank
-            authorization-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/auth
-            token-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/token
-            jwk-set-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/certs
-            user-info-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/userinfo
+            authorization-uri: ${KEYCLOAK_AUTHORIZATION_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/auth}
+            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/token}
+            jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/certs}
+            user-info-uri: ${KEYCLOAK_USER_INFO_URI:http://localhost:8080/realms/mybank/protocol/openid-connect/userinfo}
             user-name-attribute: preferred_username
         registration:
           keycloak:
             client-id: mybank-frontend
-            client-secret: frontend-secret
+            client-secret: ${FRONTEND_CLIENT_SECRET:frontend-secret}
             scope: openid,profile,email
             authorization-grant-type: authorization_code
-            # Hardcoded for local Docker: {baseUrl} resolves to container hostname instead of localhost.
-            redirect-uri: http://localhost:8082/login/oauth2/code/{registrationId}
+            redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:8082/login/oauth2/code/{registrationId}}
 
 server:
   port: 8082
   forward-headers-strategy: framework
 
-gateway:
-  url: http://localhost:8090
+accounts:
+  url: ${ACCOUNTS_URL:http://localhost:8081}
+
+cash:
+  url: ${CASH_URL:http://localhost:8083}
+
+transfer:
+  url: ${TRANSFER_URL:http://localhost:8084}
 
 resilience4j:
   circuitbreaker:
@@ -51,3 +47,9 @@ resilience4j:
         base-config: default
       transfer:
         base-config: default
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

@@ -1,0 +1,44 @@
+global:
+  gateway:
+    traefikService: traefik.kube-system.svc.cluster.local
+
+  postgres:
+    tag: "17"
+    username: postgres
+    password: postgres
+
+  keycloak:
+    tag: "26.2"
+    externalHost: keycloak.mybank.local
+    adminUsername: admin
+    adminPassword: admin
+
+  frontend:
+    externalHost: frontend.mybank.local
+    clientSecret: frontend-secret
+    image:
+      repository: mybank/frontend
+      tag: latest
+
+  accounts:
+    clientSecret: accounts-service-secret
+    image:
+      repository: mybank/accounts
+      tag: latest
+
+  cash:
+    clientSecret: cash-secret
+    image:
+      repository: mybank/cash
+      tag: latest
+
+  transfer:
+    clientSecret: transfer-secret
+    image:
+      repository: mybank/transfer
+      tag: latest
+
+  notifications:
+    image:
+      repository: mybank/notifications
+      tag: latest
