@@ -13,7 +13,8 @@ public final class AccountMapper {
                 account.getFirstName(),
                 account.getLastName(),
                 account.getDateOfBirth(),
-                account.getBalance()
+                account.getBalance(),
+                account.getVersion()
         );
     }
 

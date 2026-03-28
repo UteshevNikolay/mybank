@@ -3,16 +3,18 @@ package com.my.pet.project.mybank.frontend.client;
 import com.my.pet.project.mybank.frontend.dto.AccountResponse;
 import com.my.pet.project.mybank.frontend.dto.AccountUpdateRequest;
 import com.my.pet.project.mybank.frontend.dto.BalanceUpdateRequest;
-import com.my.pet.project.mybank.frontend.exception.ServiceException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountClient {
@@ -28,7 +30,8 @@ public class AccountClient {
     }
 
     private AccountResponse getAccountByLoginFallback(String login, Throwable t) {
-        throw new ServiceException("Accounts service unavailable", t);
+        log.warn("Accounts service unavailable: getAccountByLogin({})", login, t);
+        return null;
     }
 
     @CircuitBreaker(name = "accounts", fallbackMethod = "updateAccountFallback")
@@ -42,7 +45,8 @@ public class AccountClient {
     }
 
     private AccountResponse updateAccountFallback(Long id, AccountUpdateRequest request, Throwable t) {
-        throw new ServiceException("Accounts service unavailable", t);
+        log.warn("Accounts service unavailable: updateAccount({})", id, t);
+        return null;
     }
 
     @CircuitBreaker(name = "accounts", fallbackMethod = "getAllAccountsFallback")
@@ -54,7 +58,8 @@ public class AccountClient {
     }
 
     private List<AccountResponse> getAllAccountsFallback(Throwable t) {
-        throw new ServiceException("Accounts service unavailable", t);
+        log.warn("Accounts service unavailable: getAllAccounts()", t);
+        return Collections.emptyList();
     }
 
     @CircuitBreaker(name = "accounts", fallbackMethod = "updateBalanceFallback")
@@ -68,6 +73,7 @@ public class AccountClient {
     }
 
     private AccountResponse updateBalanceFallback(Long id, BalanceUpdateRequest request, Throwable t) {
-        throw new ServiceException("Accounts service unavailable", t);
+        log.warn("Accounts service unavailable: updateBalance({})", id, t);
+        return null;
     }
 }

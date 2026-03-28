@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/cash")
@@ -18,7 +19,7 @@ public class CashController {
     private final CashService cashService;
 
     @PostMapping
-    public ResponseEntity<CashResponse> processCash(@RequestBody CashRequest request) {
+    public ResponseEntity<CashResponse> processCash(@Valid @RequestBody CashRequest request) {
         CashResponse response = cashService.processCash(request);
         return ResponseEntity.ok(response);
     }

@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-accounts-db
+spec:
+  podSelector:
+    matchLabels:
+      app: accounts-db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: accounts
+      ports:
+        - port: 5432
+          protocol: TCP

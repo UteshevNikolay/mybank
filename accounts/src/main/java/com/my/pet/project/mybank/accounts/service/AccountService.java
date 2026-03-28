@@ -13,6 +13,7 @@ import com.my.pet.project.mybank.accounts.model.OutboxEvent;
 import com.my.pet.project.mybank.accounts.repository.AccountRepository;
 import com.my.pet.project.mybank.accounts.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,6 +98,9 @@ public class AccountService {
     public AccountResponse updateBalance(Long id, BalanceUpdateRequest request) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
+        if (!account.getVersion().equals(request.version())) {
+            throw new ObjectOptimisticLockingFailureException(Account.class.getSimpleName(), account.getId());
+        }
         account.setBalance(request.newBalance());
         Account saved = accountRepository.save(account);
 

@@ -2,15 +2,16 @@ package com.my.pet.project.mybank.frontend.client;
 
 import com.my.pet.project.mybank.frontend.dto.TransferRequest;
 import com.my.pet.project.mybank.frontend.dto.TransferResponse;
-import com.my.pet.project.mybank.frontend.exception.ServiceException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransferClient {
@@ -29,6 +30,7 @@ public class TransferClient {
     }
 
     private TransferResponse processTransferFallback(Long fromAccountId, String toLogin, BigDecimal value, Throwable t) {
-        throw new ServiceException("Transfer service unavailable", t);
+        log.warn("Transfer service unavailable: processTransfer(fromAccountId={})", fromAccountId, t);
+        return null;
     }
 }

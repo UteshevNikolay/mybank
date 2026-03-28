@@ -69,7 +69,7 @@ class AccountClientContractTest {
 
     @Test
     void shouldUpdateBalance() {
-        BalanceUpdateRequest request = new BalanceUpdateRequest(new BigDecimal("600.00"));
+        BalanceUpdateRequest request = new BalanceUpdateRequest(new BigDecimal("600.00"), 0L);
         AccountResponse response = accountClient.updateBalance(1L, request);
 
         assertThat(response).isNotNull();

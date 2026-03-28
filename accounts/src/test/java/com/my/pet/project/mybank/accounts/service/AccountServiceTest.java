@@ -79,7 +79,7 @@ class AccountServiceTest {
     @Test
     void getAccountById_found() {
         Account account = new Account(2L, "maria.sidorova", "Maria", "Sidorova",
-                LocalDate.of(1985, 6, 20), new BigDecimal("500.00"));
+                LocalDate.of(1985, 6, 20), new BigDecimal("500.00"), 0L);
         when(accountRepository.findById(2L)).thenReturn(Optional.of(account));
 
         AccountResponse response = accountService.getAccountById(2L);
@@ -103,7 +103,7 @@ class AccountServiceTest {
     @Test
     void getAccountByLogin_found() {
         Account account = new Account(3L, "alex.smirnov", "Alex", "Smirnov",
-                LocalDate.of(1992, 3, 10), new BigDecimal("1000.00"));
+                LocalDate.of(1992, 3, 10), new BigDecimal("1000.00"), 0L);
         when(accountRepository.findByLogin("alex.smirnov")).thenReturn(Optional.of(account));
 
         AccountResponse response = accountService.getAccountByLogin("alex.smirnov");
@@ -125,9 +125,9 @@ class AccountServiceTest {
     @Test
     void getAllAccounts_returnsAll() {
         Account first = new Account(1L, "user.one", "User", "One",
-                LocalDate.of(1991, 4, 5), BigDecimal.ZERO);
+                LocalDate.of(1991, 4, 5), BigDecimal.ZERO, 0L);
         Account second = new Account(2L, "user.two", "User", "Two",
-                LocalDate.of(1993, 7, 12), new BigDecimal("250.00"));
+                LocalDate.of(1993, 7, 12), new BigDecimal("250.00"), 0L);
         when(accountRepository.findAll()).thenReturn(List.of(first, second));
 
         List<AccountResponse> responses = accountService.getAllAccounts();
@@ -140,7 +140,7 @@ class AccountServiceTest {
     @Test
     void updateAccount_success() {
         Account existing = new Account(5L, "old.login", "OldFirst", "OldLast",
-                LocalDate.of(1988, 2, 28), new BigDecimal("100.00"));
+                LocalDate.of(1988, 2, 28), new BigDecimal("100.00"), 0L);
         AccountUpdateRequest request = new AccountUpdateRequest(
                 "NewFirst", "NewLast", LocalDate.of(1989, 5, 17)
         );
@@ -168,8 +168,8 @@ class AccountServiceTest {
     @Test
     void updateBalance_success() {
         Account existing = new Account(7L, "balance.user", "Balance", "User",
-                LocalDate.of(1995, 9, 3), new BigDecimal("0.00"));
-        BalanceUpdateRequest request = new BalanceUpdateRequest(new BigDecimal("750.50"));
+                LocalDate.of(1995, 9, 3), new BigDecimal("0.00"), 0L);
+        BalanceUpdateRequest request = new BalanceUpdateRequest(new BigDecimal("750.50"), 0L);
 
         when(accountRepository.findById(7L)).thenReturn(Optional.of(existing));
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));

@@ -18,7 +18,7 @@ public class NotificationKafkaConsumer {
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "notifications", groupId = "notifications-group")
+    @KafkaListener(topics = {"notifications.accounts", "notifications.cash", "notifications.transfer"}, groupId = "notifications-group")
     public void consume(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
         try {
             NotificationRequest request = objectMapper.readValue(record.value(), NotificationRequest.class);

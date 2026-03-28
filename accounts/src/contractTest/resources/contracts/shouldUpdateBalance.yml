@@ -6,6 +6,7 @@ request:
     Content-Type: application/json
   body:
     newBalance: 600.00
+    version: 0
 response:
   status: 200
   headers:
@@ -16,3 +17,4 @@ response:
     firstName: "John"
     lastName: "Doe"
     balance: 600.00
+    version: 0

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    public ResponseEntity<AccountResponse> createAccount(@RequestBody AccountCreateRequest request) {
+    public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody AccountCreateRequest request) {
         AccountResponse response = accountService.createAccount(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -49,13 +50,13 @@ public class AccountController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AccountResponse> updateAccount(@PathVariable Long id,
-                                                         @RequestBody AccountUpdateRequest request) {
+                                                         @Valid @RequestBody AccountUpdateRequest request) {
         return ResponseEntity.ok(accountService.updateAccount(id, request));
     }
 
     @PatchMapping("/{id}/balance")
     public ResponseEntity<AccountResponse> updateBalance(@PathVariable Long id,
-                                                         @RequestBody BalanceUpdateRequest request) {
+                                                         @Valid @RequestBody BalanceUpdateRequest request) {
         return ResponseEntity.ok(accountService.updateBalance(id, request));
     }
 }

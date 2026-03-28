@@ -29,6 +29,9 @@ spring:
             client-secret: ${TRANSFER_SERVICE_CLIENT_SECRET:transfer-secret}
             authorization-grant-type: client_credentials
             scope: openid
+  sql:
+    init:
+      mode: always
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:

@@ -36,11 +36,11 @@ public abstract class BaseContractTest {
 
         AccountResponse account = new AccountResponse(
                 1L, "user1", "John", "Doe",
-                LocalDate.of(1990, 1, 1), new BigDecimal("500.00"));
+                LocalDate.of(1990, 1, 1), new BigDecimal("500.00"), 0L);
 
         AccountResponse updatedAccount = new AccountResponse(
                 1L, "user1", "John", "Doe",
-                LocalDate.of(1990, 1, 1), new BigDecimal("600.00"));
+                LocalDate.of(1990, 1, 1), new BigDecimal("600.00"), 0L);
 
         when(accountService.getAccountById(1L)).thenReturn(account);
         when(accountService.getAccountByLogin("user1")).thenReturn(account);

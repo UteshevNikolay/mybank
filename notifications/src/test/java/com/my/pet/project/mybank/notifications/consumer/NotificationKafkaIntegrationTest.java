@@ -62,7 +62,7 @@ class NotificationKafkaIntegrationTest {
         NotificationRequest request = new NotificationRequest(10L, "CASH_DEPOSIT", "Deposited 500");
         String payload = objectMapper.writeValueAsString(request);
 
-        kafkaTemplate.send("notifications", "1", payload).get();
+        kafkaTemplate.send("notifications.cash", "1", payload).get();
 
         await().atMost(Duration.ofSeconds(10))
                 .untilAsserted(() -> {
