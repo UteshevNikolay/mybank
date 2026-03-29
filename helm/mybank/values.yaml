@@ -46,3 +46,9 @@ global:
     image:
       repository: mybank/notifications
       tag: latest
+
+  kibana:
+    externalHost: kibana.mybank.local
+
+  grafana:
+    externalHost: grafana.mybank.local

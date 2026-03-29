@@ -30,6 +30,9 @@ A microservice-based banking application with a UI that allows users to:
 - **Externalized Config**: Kubernetes ConfigMaps and Secrets
 - **Packaging**: Docker images, deployed via Helm charts
 - **Orchestration**: Kubernetes (Rancher Desktop for local development)
+- **Distributed Tracing**: Zipkin 3 + Micrometer Tracing (Brave)
+- **Metrics**: Prometheus + Grafana (Spring Boot Actuator, Micrometer)
+- **Centralized Logging**: ELK Stack (Elasticsearch 8.17, Logstash 8.17, Kibana 8.17) + Logback with LogstashEncoder
 
 ## Architecture & Patterns
 
@@ -43,6 +46,40 @@ A microservice-based banking application with a UI that allows users to:
 - **Externalized Config** — ConfigMaps and Secrets for environment-specific configuration
 - **Contract Testing** — Verified inter-service contracts via Spring Cloud Contract
 - **Multi-Environment** — Namespace-based environment separation (dev, test, prod)
+
+## Observability
+
+### Distributed Tracing (Zipkin)
+
+All microservices and Frontend report traces to Zipkin via Micrometer Tracing (Brave). Trace context (traceId, spanId) is automatically propagated across HTTP calls (RestClient), Kafka messages, and database queries. TraceId and spanId are included in all log entries for correlation with Kibana.
+
+### Metrics & Alerting (Prometheus + Grafana)
+
+Services expose metrics via Spring Boot Actuator (`/actuator/prometheus`). Prometheus scrapes all 5 services and evaluates alert rules.
+
+**Custom business metrics:**
+- `cash.withdrawal.failed` — failed withdrawal attempts (tag: `login`)
+- `transfer.failed` — failed transfer attempts (tags: `senderLogin`, `receiverLogin`)
+- `notification.delivery.failed` — failed notification delivery (tag: `accountId`)
+
+**Grafana dashboards:**
+- HTTP Metrics — RPS, 4xx/5xx error rates, p50/p95/p99 latency
+- JVM Metrics — heap memory, GC pauses, thread count, CPU usage
+- Business Metrics — failed withdrawals, transfers, notifications
+
+**Prometheus alerts:**
+- `HighErrorRate` — 5xx rate > 5% for 2 minutes
+- `HighLatency` — p95 > 2 seconds for 5 minutes
+- `CashWithdrawalFailures` — high rate of failed withdrawals
+- `TransferFailures` — high rate of failed transfers
+
+### Centralized Logging (ELK Stack)
+
+Logs are sent from all services to Logstash via TCP (JSON format using LogstashEncoder), processed and forwarded to Elasticsearch, and visualized in Kibana. Each log entry includes `traceId` and `spanId` from Micrometer Tracing MDC for correlation with Zipkin traces.
+
+**Spring profiles:**
+- `default` — plain text console logging (local development)
+- `k8s` — JSON console + TCP to Logstash (Kubernetes deployment)
 
 ## Project Structure
 
@@ -85,6 +122,12 @@ The application is packaged as an umbrella Helm chart with sub-charts for each c
 | transfer | Deployment | Transfer microservice |
 | notifications | Deployment | Notifications microservice |
 | frontend | Deployment | Frontend Web UI |
+| zipkin | Deployment | Zipkin distributed tracing server |
+| elasticsearch | StatefulSet | Elasticsearch for log storage |
+| logstash | Deployment | Logstash for log processing and forwarding |
+| kibana | Deployment | Kibana for log visualization |
+| prometheus | StatefulSet | Prometheus metrics collection and alerting |
+| grafana | Deployment | Grafana for metrics visualization |
 
 Each sub-chart can be deployed independently or together via the umbrella chart.
 
@@ -209,7 +252,7 @@ docker build -t mybank/frontend ./frontend
 Add hostname entries for Ingress routing (requires sudo):
 
 ```bash
-sudo sh -c 'echo "127.0.0.1 frontend.mybank.local" >> /etc/hosts && echo "127.0.0.1 keycloak.mybank.local" >> /etc/hosts'
+sudo sh -c 'echo "127.0.0.1 frontend.mybank.local" >> /etc/hosts && echo "127.0.0.1 keycloak.mybank.local" >> /etc/hosts && echo "127.0.0.1 kibana.mybank.local" >> /etc/hosts && echo "127.0.0.1 grafana.mybank.local" >> /etc/hosts'
 ```
 
 ### 4. Deploy with Helm
@@ -259,6 +302,9 @@ done
 
 - **Frontend**: http://frontend.mybank.local
 - **Keycloak Admin**: http://keycloak.mybank.local (admin / admin)
+- **Grafana**: http://grafana.mybank.local (admin / admin)
+- **Kibana**: http://kibana.mybank.local
+- **Zipkin**: accessible inside the cluster on port 9411
 
 Log in with test users (all passwords: `password`): `user1`, `user2`, `user3`
 

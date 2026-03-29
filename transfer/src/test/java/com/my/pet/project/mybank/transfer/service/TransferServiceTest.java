@@ -2,6 +2,8 @@ package com.my.pet.project.mybank.transfer.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.pet.project.mybank.transfer.client.AccountClient;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.my.pet.project.mybank.transfer.dto.AccountResponse;
 import com.my.pet.project.mybank.transfer.dto.BalanceUpdateRequest;
 import com.my.pet.project.mybank.transfer.dto.TransferRequest;
@@ -45,6 +47,9 @@ class TransferServiceTest {
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Spy
+    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
     @InjectMocks
     private TransferService transferService;

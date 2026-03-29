@@ -2,6 +2,8 @@ package com.my.pet.project.mybank.cash.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.pet.project.mybank.cash.client.AccountClient;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.my.pet.project.mybank.cash.dto.AccountResponse;
 import com.my.pet.project.mybank.cash.dto.BalanceUpdateRequest;
 import com.my.pet.project.mybank.cash.dto.CashRequest;
@@ -44,6 +46,9 @@ class CashServiceTest {
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Spy
+    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
     @InjectMocks
     private CashService cashService;

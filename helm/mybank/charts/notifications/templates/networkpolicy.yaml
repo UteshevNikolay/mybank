@@ -8,4 +8,11 @@ spec:
       app: notifications
   policyTypes:
     - Ingress
-  ingress: []
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - port: 8085
+          protocol: TCP

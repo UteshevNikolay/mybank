@@ -13,6 +13,7 @@ import com.my.pet.project.mybank.accounts.model.OutboxEvent;
 import com.my.pet.project.mybank.accounts.repository.AccountRepository;
 import com.my.pet.project.mybank.accounts.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -47,6 +49,7 @@ public class AccountService {
         event.setCreatedAt(LocalDateTime.now());
         outboxEventRepository.save(event);
 
+        log.info("Account created: id={}, login={}", saved.getId(), saved.getLogin());
         return AccountMapper.toResponse(saved);
     }
 
@@ -54,6 +57,7 @@ public class AccountService {
     public AccountResponse getAccountById(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
+        log.debug("Account found by id: id={}, login={}", account.getId(), account.getLogin());
         return AccountMapper.toResponse(account);
     }
 
@@ -61,6 +65,7 @@ public class AccountService {
     public AccountResponse getAccountByLogin(String login) {
         Account account = accountRepository.findByLogin(login)
                 .orElseThrow(() -> new AccountNotFoundException(login));
+        log.debug("Account found by login: login={}", account.getLogin());
         return AccountMapper.toResponse(account);
     }
 
@@ -91,6 +96,7 @@ public class AccountService {
         event.setCreatedAt(LocalDateTime.now());
         outboxEventRepository.save(event);
 
+        log.info("Account updated: id={}", saved.getId());
         return AccountMapper.toResponse(saved);
     }
 
@@ -115,6 +121,7 @@ public class AccountService {
         event.setCreatedAt(LocalDateTime.now());
         outboxEventRepository.save(event);
 
+        log.info("Balance updated: accountId={}, newBalance={}", saved.getId(), request.newBalance());
         return AccountMapper.toResponse(saved);
     }
 

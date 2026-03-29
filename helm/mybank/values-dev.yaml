@@ -4,3 +4,9 @@ global:
 
   frontend:
     externalHost: frontend.mybank.local
+
+  kibana:
+    externalHost: kibana.mybank.local
+
+  grafana:
+    externalHost: grafana.mybank.local

@@ -13,7 +13,10 @@ import com.my.pet.project.mybank.cash.model.CashOperationType;
 import com.my.pet.project.mybank.cash.model.OutboxEvent;
 import com.my.pet.project.mybank.cash.repository.CashOperationRepository;
 import com.my.pet.project.mybank.cash.repository.OutboxEventRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CashService {
@@ -29,6 +33,7 @@ public class CashService {
     private final CashOperationRepository cashOperationRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
+    private final MeterRegistry meterRegistry;
 
     @Transactional
     public CashResponse processCash(CashRequest request) {
@@ -41,6 +46,12 @@ public class CashService {
         BigDecimal currentBalance = account.balance();
 
         if (type == CashOperationType.WITHDRAWAL && currentBalance.compareTo(amount) < 0) {
+            log.warn("Withdrawal failed - insufficient funds: accountId={}, requested={}, available={}", request.accountId(), amount, currentBalance);
+            Counter.builder("cash.withdrawal.failed")
+                    .tag("login", account.login())
+                    .description("Failed withdrawal attempts due to insufficient funds")
+                    .register(meterRegistry)
+                    .increment();
             throw new InsufficientFundsException("Недостаточно средств на счету");
         }
 
@@ -70,6 +81,7 @@ public class CashService {
         event.setCreatedAt(LocalDateTime.now());
         outboxEventRepository.save(event);
 
+        log.info("Cash operation completed: accountId={}, type={}, amount={}, newBalance={}", request.accountId(), type, amount, newBalance);
         String responseMessage = type == CashOperationType.WITHDRAWAL
                 ? "Снято %s руб".formatted(amount.toPlainString())
                 : "Положено %s руб".formatted(amount.toPlainString());
