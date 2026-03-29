@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-logstash-pipeline
+data:
+  logstash.conf: |
+    input {
+      tcp {
+        port => 5000
+        codec => json_lines
+      }
+    }
+
+    filter {
+      if [mdc][traceId] {
+        mutate {
+          add_field => { "traceId" => "%{[mdc][traceId]}" }
+        }
+      }
+      if [mdc][spanId] {
+        mutate {
+          add_field => { "spanId" => "%{[mdc][spanId]}" }
+        }
+      }
+      mutate {
+        remove_field => [ "mdc" ]
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://{{ .Release.Name }}-elasticsearch:9200"]
+        index => "mybank-logs-%{+YYYY.MM.dd}"
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-logstash-config
+data:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline

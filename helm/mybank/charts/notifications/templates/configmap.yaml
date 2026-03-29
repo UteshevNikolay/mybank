@@ -5,3 +5,7 @@ metadata:
 data:
   SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ .Release.Name }}-notifications-db:5432/notifications_db"
   KAFKA_BOOTSTRAP_SERVERS: "{{ .Release.Name }}-kafka:9092"
+  ZIPKIN_URL: "http://{{ .Release.Name }}-zipkin:9411"
+  LOGSTASH_HOST: "{{ .Release.Name }}-logstash"
+  LOGSTASH_PORT: "5000"
+  SPRING_PROFILES_ACTIVE: "k8s"

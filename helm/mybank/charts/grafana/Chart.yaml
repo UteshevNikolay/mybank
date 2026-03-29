@@ -1,0 +1,5 @@
+apiVersion: v2
+name: grafana
+description: Grafana for metrics visualization and alerting
+version: 0.1.0
+type: application

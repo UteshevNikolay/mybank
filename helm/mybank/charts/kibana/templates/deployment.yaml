@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-kibana
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:8.17.0
+          ports:
+            - containerPort: 5601
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: "http://{{ .Release.Name }}-elasticsearch:9200"
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 120
+            periodSeconds: 15

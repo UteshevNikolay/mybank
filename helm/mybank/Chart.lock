@@ -38,5 +38,23 @@ dependencies:
 - name: frontend
   repository: ""
   version: 0.1.0
-digest: sha256:b992e06ca6c6ada80fde9d57ed324365f07e8b3e253d7c72a9b6000b634a7889
-generated: "2026-03-27T08:36:24.006651+03:00"
+- name: zipkin
+  repository: ""
+  version: 0.1.0
+- name: elasticsearch
+  repository: ""
+  version: 0.1.0
+- name: logstash
+  repository: ""
+  version: 0.1.0
+- name: kibana
+  repository: ""
+  version: 0.1.0
+- name: prometheus
+  repository: ""
+  version: 0.1.0
+- name: grafana
+  repository: ""
+  version: 0.1.0
+digest: sha256:59f514c230f417e20a352fa57704bafff7241fa27af41ba503c951500fdec8cb
+generated: "2026-03-28T17:02:56.985381+03:00"

@@ -4,6 +4,7 @@ import com.my.pet.project.mybank.transfer.dto.TransferRequest;
 import com.my.pet.project.mybank.transfer.dto.TransferResponse;
 import com.my.pet.project.mybank.transfer.service.TransferService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("/transfer")
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class TransferController {
 
     @PostMapping
     public ResponseEntity<TransferResponse> processTransfer(@Valid @RequestBody TransferRequest request) {
+        log.info("POST /transfer requested: fromAccountId={}, toLogin={}", request.fromAccountId(), request.toLogin());
         TransferResponse response = transferService.processTransfer(request);
         return ResponseEntity.ok(response);
     }

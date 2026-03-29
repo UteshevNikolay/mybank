@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-elasticsearch
+  labels:
+    app: elasticsearch
+spec:
+  serviceName: {{ .Release.Name }}-elasticsearch
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+          ports:
+            - containerPort: 9200
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: xpack.security.enabled
+              value: "false"
+            - name: ES_JAVA_OPTS
+              value: -Xms256m -Xmx256m
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health?local=true
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /_cluster/health?local=true
+              port: 9200
+            initialDelaySeconds: 60
+            periodSeconds: 15
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 1Gi

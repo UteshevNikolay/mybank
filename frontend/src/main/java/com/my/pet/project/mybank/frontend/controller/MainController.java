@@ -9,6 +9,7 @@ import com.my.pet.project.mybank.frontend.dto.AccountUpdateRequest;
 import com.my.pet.project.mybank.frontend.dto.CashAction;
 import com.my.pet.project.mybank.frontend.dto.CashResponse;
 import com.my.pet.project.mybank.frontend.dto.TransferResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Controller
 public class MainController {
 
@@ -46,8 +48,10 @@ public class MainController {
     @GetMapping("/account")
     public String getAccount(Model model, @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
+        log.info("GET /account requested: login={}", login);
         AccountResponse account = accountClient.getAccountByLogin(login);
         if (account == null) {
+            log.warn("Account service unavailable for login={}", login);
             fillEmptyModel(model, List.of("Сервис временно недоступен"));
             return "main";
         }
@@ -62,6 +66,7 @@ public class MainController {
                               @RequestParam("birthdate") LocalDate birthdate,
                               @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
+        log.info("POST /account requested: login={}", login);
         AccountResponse account = accountClient.getAccountByLogin(login);
         if (account == null) {
             fillEmptyModel(model, List.of("Сервис временно недоступен"));
@@ -89,6 +94,7 @@ public class MainController {
                            @RequestParam("action") CashAction action,
                            @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
+        log.info("POST /cash requested: login={}, action={}, value={}", login, action, value);
         AccountResponse account = accountClient.getAccountByLogin(login);
         if (account == null) {
             fillEmptyModel(model, List.of("Сервис временно недоступен"));
@@ -96,8 +102,15 @@ public class MainController {
         }
         CashResponse cashResponse = cashClient.processCash(account.id(), value, action.name());
         if (cashResponse == null) {
+            log.warn("Cash service unavailable for login={}", login);
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
             fillModel(model, account, allAccounts, login, List.of("Сервис временно недоступен"), null);
+            return "main";
+        }
+        if (cashResponse.newBalance() == null) {
+            log.warn("Cash business error for login={}: {}", login, cashResponse.message());
+            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+            fillModel(model, account, allAccounts, login, List.of(cashResponse.message()), null);
             return "main";
         }
         account = accountClient.getAccountByLogin(login);
@@ -116,6 +129,7 @@ public class MainController {
                            @RequestParam("login") String toLogin,
                            @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
+        log.info("POST /transfer requested: login={}, toLogin={}, value={}", login, toLogin, value);
         AccountResponse account = accountClient.getAccountByLogin(login);
         if (account == null) {
             fillEmptyModel(model, List.of("Сервис временно недоступен"));
@@ -123,8 +137,15 @@ public class MainController {
         }
         TransferResponse transferResponse = transferClient.processTransfer(account.id(), toLogin, value);
         if (transferResponse == null) {
+            log.warn("Transfer service unavailable for login={}", login);
             List<AccountResponse> allAccounts = accountClient.getAllAccounts();
             fillModel(model, account, allAccounts, login, List.of("Сервис временно недоступен"), null);
+            return "main";
+        }
+        if (transferResponse.newBalance() == null) {
+            log.warn("Transfer business error for login={}: {}", login, transferResponse.message());
+            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+            fillModel(model, account, allAccounts, login, List.of(transferResponse.message()), null);
             return "main";
         }
         account = accountClient.getAccountByLogin(login);

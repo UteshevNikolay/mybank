@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-zipkin
+  labels:
+    app: zipkin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zipkin
+  template:
+    metadata:
+      labels:
+        app: zipkin
+    spec:
+      containers:
+        - name: zipkin
+          image: openzipkin/zipkin:3
+          ports:
+            - containerPort: 9411
+          env:
+            - name: STORAGE_TYPE
+              value: mem
+            - name: JAVA_OPTS
+              value: "-Xms64m -Xmx128m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 9411
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9411
+            initialDelaySeconds: 60
+            periodSeconds: 15

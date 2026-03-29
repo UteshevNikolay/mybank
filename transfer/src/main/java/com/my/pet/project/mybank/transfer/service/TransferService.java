@@ -12,7 +12,10 @@ import com.my.pet.project.mybank.transfer.model.OutboxEvent;
 import com.my.pet.project.mybank.transfer.model.TransferOperation;
 import com.my.pet.project.mybank.transfer.repository.OutboxEventRepository;
 import com.my.pet.project.mybank.transfer.repository.TransferOperationRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransferService {
@@ -28,6 +32,7 @@ public class TransferService {
     private final TransferOperationRepository transferOperationRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
+    private final MeterRegistry meterRegistry;
 
     @Transactional
     public TransferResponse processTransfer(TransferRequest request) {
@@ -35,6 +40,13 @@ public class TransferService {
         BigDecimal amount = request.value();
 
         if (sender.balance().compareTo(amount) < 0) {
+            log.warn("Transfer failed - insufficient funds: fromAccountId={}, toLogin={}, requested={}, available={}", request.fromAccountId(), request.toLogin(), amount, sender.balance());
+            Counter.builder("transfer.failed")
+                    .tag("senderLogin", sender.login())
+                    .tag("receiverLogin", request.toLogin())
+                    .description("Failed transfer attempts due to insufficient funds")
+                    .register(meterRegistry)
+                    .increment();
             throw new InsufficientFundsException("Недостаточно средств на счету");
         }
 
@@ -75,6 +87,7 @@ public class TransferService {
         recipientEvent.setCreatedAt(LocalDateTime.now());
         outboxEventRepository.save(recipientEvent);
 
+        log.info("Transfer completed: fromAccountId={}, toAccountId={}, amount={}", sender.id(), recipient.id(), amount);
         String message = "Успешно переведено %s руб клиенту %s".formatted(amount.toPlainString(), recipientName);
 
         return new TransferResponse(message, newSenderBalance);

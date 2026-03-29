@@ -1,0 +1,256 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-grafana-dashboards
+data:
+  http-metrics.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "title": "Request Rate (RPS)",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count[5m])) by (job)",
+              "legendFormat": "{{`{{job}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "4xx Error Rate",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count{status=~\"4..\"}[5m])) by (job)",
+              "legendFormat": "{{`{{job}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "5xx Error Rate",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m])) by (job)",
+              "legendFormat": "{{`{{job}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "Response Time Percentiles",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.5, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "p50 {{`{{job}}`}}",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "p95 {{`{{job}}`}}",
+              "refId": "B"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "p99 {{`{{job}}`}}",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        }
+      ],
+      "refresh": "10s",
+      "schemaVersion": 39,
+      "tags": [],
+      "templating": {"list": []},
+      "time": {"from": "now-1h", "to": "now"},
+      "title": "HTTP Metrics",
+      "uid": "http-metrics-001"
+    }
+  jvm-metrics.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "title": "Heap Memory Used",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{area=\"heap\"}",
+              "legendFormat": "{{`{{instance}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "GC Pause Duration",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "rate(jvm_gc_pause_seconds_sum[5m])",
+              "legendFormat": "{{`{{instance}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "Live Threads",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {
+              "expr": "jvm_threads_live_threads",
+              "legendFormat": "{{`{{instance}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "CPU Usage",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "targets": [
+            {
+              "expr": "process_cpu_usage",
+              "legendFormat": "{{`{{instance}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        }
+      ],
+      "refresh": "10s",
+      "schemaVersion": 39,
+      "tags": [],
+      "templating": {"list": []},
+      "time": {"from": "now-1h", "to": "now"},
+      "title": "JVM Metrics",
+      "uid": "jvm-metrics-001"
+    }
+  business-metrics.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "title": "Failed Withdrawals",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "rate(cash_withdrawal_failed_total[5m])",
+              "legendFormat": "failed withdrawals/s",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "Failed Transfers",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "rate(transfer_failed_total[5m])",
+              "legendFormat": "failed transfers/s",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        },
+        {
+          "title": "Failed Notifications",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {
+              "expr": "rate(notification_delivery_failed_total[5m])",
+              "legendFormat": "failed notifications/s",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {"custom": {"drawStyle": "line", "fillOpacity": 10}},
+            "overrides": []
+          }
+        }
+      ],
+      "refresh": "10s",
+      "schemaVersion": 39,
+      "tags": [],
+      "templating": {"list": []},
+      "time": {"from": "now-1h", "to": "now"},
+      "title": "Business Metrics",
+      "uid": "business-metrics-001"
+    }

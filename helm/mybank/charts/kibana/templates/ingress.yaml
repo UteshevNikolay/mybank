@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-kibana
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: {{ .Values.global.kibana.externalHost }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-kibana
+                port:
+                  number: 5601

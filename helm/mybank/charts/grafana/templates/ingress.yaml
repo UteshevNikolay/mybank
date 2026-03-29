@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-grafana
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: {{ .Values.global.grafana.externalHost }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-grafana
+                port:
+                  number: 3000

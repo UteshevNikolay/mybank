@@ -30,3 +30,15 @@ dependencies:
     version: 0.1.0
   - name: frontend
     version: 0.1.0
+  - name: zipkin
+    version: 0.1.0
+  - name: elasticsearch
+    version: 0.1.0
+  - name: logstash
+    version: 0.1.0
+  - name: kibana
+    version: 0.1.0
+  - name: prometheus
+    version: 0.1.0
+  - name: grafana
+    version: 0.1.0
