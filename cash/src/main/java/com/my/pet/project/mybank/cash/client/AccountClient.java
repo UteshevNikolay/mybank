@@ -5,10 +5,12 @@ import com.my.pet.project.mybank.cash.dto.BalanceUpdateRequest;
 import com.my.pet.project.mybank.cash.exception.ServiceUnavailableException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountClient {
@@ -24,6 +26,7 @@ public class AccountClient {
     }
 
     private AccountResponse getAccountByIdFallback(Long id, Throwable t) {
+        log.error("Failed to get account by id={}: {}", id, t.getMessage(), t);
         throw new ServiceUnavailableException("Accounts service unavailable", t);
     }
 
@@ -38,6 +41,7 @@ public class AccountClient {
     }
 
     private AccountResponse updateBalanceFallback(Long id, BalanceUpdateRequest request, Throwable t) {
+        log.error("Failed to update balance for id={}: {}", id, t.getMessage(), t);
         throw new ServiceUnavailableException("Accounts service unavailable", t);
     }
 }

@@ -48,7 +48,7 @@ public class CashService {
                 ? currentBalance.subtract(amount)
                 : currentBalance.add(amount);
 
-        accountClient.updateBalance(request.accountId(), new BalanceUpdateRequest(newBalance));
+        accountClient.updateBalance(request.accountId(), new BalanceUpdateRequest(newBalance, account.version()));
 
         CashOperation operation = new CashOperation();
         operation.setAccountId(request.accountId());

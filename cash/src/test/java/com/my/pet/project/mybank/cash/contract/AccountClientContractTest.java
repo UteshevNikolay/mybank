@@ -11,7 +11,9 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestClient;
+import com.my.pet.project.mybank.cash.service.OutboxPublisher;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -36,6 +38,9 @@ class AccountClientContractTest {
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");
 
+    @MockitoBean
+    private OutboxPublisher outboxPublisher;
+
     @Autowired
     private AccountClient accountClient;
 
@@ -48,12 +53,6 @@ class AccountClientContractTest {
                     .build();
         }
 
-        @Bean
-        public RestClient notificationsRestClient() {
-            return RestClient.builder()
-                    .baseUrl("http://localhost:9999")
-                    .build();
-        }
     }
 
     @Test
@@ -70,7 +69,7 @@ class AccountClientContractTest {
 
     @Test
     void shouldUpdateBalance() {
-        BalanceUpdateRequest request = new BalanceUpdateRequest(new BigDecimal("600.00"));
+        BalanceUpdateRequest request = new BalanceUpdateRequest(new BigDecimal("600.00"), 0L);
         AccountResponse response = accountClient.updateBalance(1L, request);
 
         assertThat(response).isNotNull();

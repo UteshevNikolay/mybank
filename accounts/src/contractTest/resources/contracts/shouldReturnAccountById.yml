@@ -12,3 +12,4 @@ response:
     firstName: "John"
     lastName: "Doe"
     balance: 500.00
+    version: 0

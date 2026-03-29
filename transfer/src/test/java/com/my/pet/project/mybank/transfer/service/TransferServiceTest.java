@@ -50,11 +50,11 @@ class TransferServiceTest {
     private TransferService transferService;
 
     private AccountResponse senderAccount(BigDecimal balance) {
-        return new AccountResponse(1L, "sender", "Ivan", "Ivanov", null, balance);
+        return new AccountResponse(1L, "sender", "Ivan", "Ivanov", null, balance, 0L);
     }
 
     private AccountResponse recipientAccount(BigDecimal balance) {
-        return new AccountResponse(2L, "recipient", "Petr", "Petrov", null, balance);
+        return new AccountResponse(2L, "recipient", "Petr", "Petrov", null, balance, 0L);
     }
 
     @Test

@@ -52,7 +52,7 @@ class CashControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     private AccountResponse accountWithBalance(BigDecimal balance) {
-        return new AccountResponse(1L, "user1", "John", "Doe", null, balance);
+        return new AccountResponse(1L, "user1", "John", "Doe", null, balance, 0L);
     }
 
     @Test

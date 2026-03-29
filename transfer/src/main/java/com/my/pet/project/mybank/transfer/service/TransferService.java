@@ -41,10 +41,10 @@ public class TransferService {
         AccountResponse recipient = accountClient.getAccountByLogin(request.toLogin());
 
         BigDecimal newSenderBalance = sender.balance().subtract(amount);
-        accountClient.updateBalance(sender.id(), new BalanceUpdateRequest(newSenderBalance));
+        accountClient.updateBalance(sender.id(), new BalanceUpdateRequest(newSenderBalance, sender.version()));
 
         BigDecimal newRecipientBalance = recipient.balance().add(amount);
-        accountClient.updateBalance(recipient.id(), new BalanceUpdateRequest(newRecipientBalance));
+        accountClient.updateBalance(recipient.id(), new BalanceUpdateRequest(newRecipientBalance, recipient.version()));
 
         TransferOperation operation = new TransferOperation();
         operation.setFromAccountId(sender.id());

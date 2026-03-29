@@ -1,11 +1,6 @@
 spring:
   main:
     allow-bean-definition-overriding: true
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:9999/not-used
   jpa:
     hibernate:
       ddl-auto: create-drop

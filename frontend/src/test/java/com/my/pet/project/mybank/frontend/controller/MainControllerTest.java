@@ -92,9 +92,9 @@ class MainControllerTest {
     void getAccount_returnsMainView() throws Exception {
         OidcUser oidcUser = buildOidcUser("testuser");
         AccountResponse account = new AccountResponse(1L, "testuser", "Ivan", "Petrov",
-                LocalDate.of(1990, 1, 1), BigDecimal.valueOf(500));
+                LocalDate.of(1990, 1, 1), BigDecimal.valueOf(500), 0L);
         AccountResponse otherAccount = new AccountResponse(2L, "otheruser", "Maria", "Sidorova",
-                LocalDate.of(1985, 5, 15), BigDecimal.valueOf(300));
+                LocalDate.of(1985, 5, 15), BigDecimal.valueOf(300), 0L);
 
         when(accountClient.getAccountByLogin("testuser")).thenReturn(account);
         when(accountClient.getAllAccounts()).thenReturn(List.of(account, otherAccount));
@@ -110,7 +110,7 @@ class MainControllerTest {
     void editCash_returnsMainView() throws Exception {
         OidcUser oidcUser = buildOidcUser("testuser");
         AccountResponse account = new AccountResponse(1L, "testuser", "Ivan", "Petrov",
-                LocalDate.of(1990, 1, 1), BigDecimal.valueOf(600));
+                LocalDate.of(1990, 1, 1), BigDecimal.valueOf(600), 0L);
         CashResponse cashResponse = new CashResponse("Deposit successful", BigDecimal.valueOf(600));
 
         when(accountClient.getAccountByLogin("testuser")).thenReturn(account);
@@ -131,7 +131,7 @@ class MainControllerTest {
     void transfer_returnsMainView() throws Exception {
         OidcUser oidcUser = buildOidcUser("testuser");
         AccountResponse account = new AccountResponse(1L, "testuser", "Ivan", "Petrov",
-                LocalDate.of(1990, 1, 1), BigDecimal.valueOf(400));
+                LocalDate.of(1990, 1, 1), BigDecimal.valueOf(400), 0L);
         TransferResponse transferResponse = new TransferResponse("Transfer successful", BigDecimal.valueOf(400));
 
         when(accountClient.getAccountByLogin("testuser")).thenReturn(account);

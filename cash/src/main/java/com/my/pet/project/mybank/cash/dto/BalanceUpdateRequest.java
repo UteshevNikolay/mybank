@@ -3,5 +3,6 @@ package com.my.pet.project.mybank.cash.dto;
 import java.math.BigDecimal;
 
 public record BalanceUpdateRequest(
-        BigDecimal newBalance
+        BigDecimal newBalance,
+        Long version
 ) {}

@@ -40,15 +40,6 @@ public class RestClientConfig {
                 .build();
     }
 
-    @Bean
-    public RestClient notificationsRestClient(@Value("${notifications.url}") String notificationsUrl,
-                                               OAuth2AuthorizedClientManager authorizedClientManager) {
-        return RestClient.builder()
-                .baseUrl(notificationsUrl)
-                .requestInterceptor(clientCredentialsInterceptor(authorizedClientManager))
-                .build();
-    }
-
     private ClientHttpRequestInterceptor clientCredentialsInterceptor(
             OAuth2AuthorizedClientManager authorizedClientManager) {
         return (request, body, execution) -> {

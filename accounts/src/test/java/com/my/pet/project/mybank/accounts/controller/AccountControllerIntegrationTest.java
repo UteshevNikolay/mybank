@@ -79,7 +79,7 @@ class AccountControllerIntegrationTest {
     @Test
     void getAccountById_returns200() throws Exception {
         Account saved = accountRepository.save(
-                new Account(null, "user2", "Jane", "Smith", LocalDate.of(1985, 5, 15), BigDecimal.ZERO));
+                new Account(null, "user2", "Jane", "Smith", LocalDate.of(1985, 5, 15), BigDecimal.ZERO, null));
 
         mockMvc.perform(get("/accounts/{id}", saved.getId())
                         .with(jwt()))
@@ -99,7 +99,7 @@ class AccountControllerIntegrationTest {
     @Test
     void getAccountByLogin_returns200() throws Exception {
         accountRepository.save(
-                new Account(null, "user3", "Alice", "Brown", LocalDate.of(1992, 3, 20), BigDecimal.ZERO));
+                new Account(null, "user3", "Alice", "Brown", LocalDate.of(1992, 3, 20), BigDecimal.ZERO, null));
 
         mockMvc.perform(get("/accounts/login/user3")
                         .with(jwt()))
@@ -111,9 +111,9 @@ class AccountControllerIntegrationTest {
     @Test
     void getAllAccounts_returns200() throws Exception {
         accountRepository.save(
-                new Account(null, "userA", "First", "One", LocalDate.of(1990, 1, 1), BigDecimal.ZERO));
+                new Account(null, "userA", "First", "One", LocalDate.of(1990, 1, 1), BigDecimal.ZERO, null));
         accountRepository.save(
-                new Account(null, "userB", "Second", "Two", LocalDate.of(1991, 2, 2), BigDecimal.ZERO));
+                new Account(null, "userB", "Second", "Two", LocalDate.of(1991, 2, 2), BigDecimal.ZERO, null));
 
         mockMvc.perform(get("/accounts")
                         .with(jwt()))
@@ -124,7 +124,7 @@ class AccountControllerIntegrationTest {
     @Test
     void updateAccount_returns200() throws Exception {
         Account saved = accountRepository.save(
-                new Account(null, "user4", "OldFirst", "OldLast", LocalDate.of(1988, 7, 10), BigDecimal.ZERO));
+                new Account(null, "user4", "OldFirst", "OldLast", LocalDate.of(1988, 7, 10), BigDecimal.ZERO, null));
 
         AccountUpdateRequest updateRequest = new AccountUpdateRequest("NewFirst", "NewLast", LocalDate.of(1989, 8, 11));
 
@@ -140,9 +140,9 @@ class AccountControllerIntegrationTest {
     @Test
     void updateBalance_returns200() throws Exception {
         Account saved = accountRepository.save(
-                new Account(null, "user5", "Bob", "Builder", LocalDate.of(1983, 4, 5), new BigDecimal("100")));
+                new Account(null, "user5", "Bob", "Builder", LocalDate.of(1983, 4, 5), new BigDecimal("100"), null));
 
-        BalanceUpdateRequest balanceRequest = new BalanceUpdateRequest(new BigDecimal("200"));
+        BalanceUpdateRequest balanceRequest = new BalanceUpdateRequest(new BigDecimal("200"), 0L);
 
         mockMvc.perform(patch("/accounts/{id}/balance", saved.getId())
                         .with(jwt())

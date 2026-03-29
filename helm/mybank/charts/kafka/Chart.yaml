@@ -1,0 +1,4 @@
+apiVersion: v2
+name: kafka
+description: Apache Kafka message broker (KRaft mode)
+version: 0.1.0

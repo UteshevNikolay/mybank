@@ -9,5 +9,6 @@ public record AccountResponse(
         String firstName,
         String lastName,
         LocalDate dateOfBirth,
-        BigDecimal balance
+        BigDecimal balance,
+        Long version
 ) {}

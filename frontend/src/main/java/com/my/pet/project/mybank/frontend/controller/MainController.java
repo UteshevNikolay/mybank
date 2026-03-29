@@ -9,7 +9,6 @@ import com.my.pet.project.mybank.frontend.dto.AccountUpdateRequest;
 import com.my.pet.project.mybank.frontend.dto.CashAction;
 import com.my.pet.project.mybank.frontend.dto.CashResponse;
 import com.my.pet.project.mybank.frontend.dto.TransferResponse;
-import com.my.pet.project.mybank.frontend.exception.ServiceException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -47,13 +46,13 @@ public class MainController {
     @GetMapping("/account")
     public String getAccount(Model model, @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
-        try {
-            AccountResponse account = accountClient.getAccountByLogin(login);
-            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, login, null, null);
-        } catch (ServiceException e) {
-            fillEmptyModel(model, List.of(e.getMessage()));
+        AccountResponse account = accountClient.getAccountByLogin(login);
+        if (account == null) {
+            fillEmptyModel(model, List.of("Сервис временно недоступен"));
+            return "main";
         }
+        List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+        fillModel(model, account, allAccounts, login, null, null);
         return "main";
     }
 
@@ -63,20 +62,24 @@ public class MainController {
                               @RequestParam("birthdate") LocalDate birthdate,
                               @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
-        try {
-            AccountResponse account = accountClient.getAccountByLogin(login);
-            String[] parts = name.split(" ", 2);
-            String lastName = parts[0];
-            String firstName = parts.length > 1 ? parts[1] : "";
-
-            AccountUpdateRequest request = new AccountUpdateRequest(firstName, lastName, birthdate);
-            account = accountClient.updateAccount(account.id(), request);
-
-            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, login, null, null);
-        } catch (ServiceException e) {
-            fillEmptyModel(model, List.of(e.getMessage()));
+        AccountResponse account = accountClient.getAccountByLogin(login);
+        if (account == null) {
+            fillEmptyModel(model, List.of("Сервис временно недоступен"));
+            return "main";
         }
+        String[] parts = name.split(" ", 2);
+        String lastName = parts[0];
+        String firstName = parts.length > 1 ? parts[1] : "";
+
+        AccountUpdateRequest request = new AccountUpdateRequest(firstName, lastName, birthdate);
+        account = accountClient.updateAccount(account.id(), request);
+        if (account == null) {
+            fillEmptyModel(model, List.of("Сервис временно недоступен"));
+            return "main";
+        }
+
+        List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+        fillModel(model, account, allAccounts, login, null, null);
         return "main";
     }
 
@@ -86,21 +89,24 @@ public class MainController {
                            @RequestParam("action") CashAction action,
                            @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
-        try {
-            AccountResponse account = accountClient.getAccountByLogin(login);
-            CashResponse cashResponse = cashClient.processCash(account.id(), value, action.name());
-            account = accountClient.getAccountByLogin(login);
-            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, login, null, cashResponse.message());
-        } catch (ServiceException e) {
-            try {
-                AccountResponse account = accountClient.getAccountByLogin(login);
-                List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-                fillModel(model, account, allAccounts, login, List.of(e.getMessage()), null);
-            } catch (ServiceException ex) {
-                fillEmptyModel(model, List.of(e.getMessage()));
-            }
+        AccountResponse account = accountClient.getAccountByLogin(login);
+        if (account == null) {
+            fillEmptyModel(model, List.of("Сервис временно недоступен"));
+            return "main";
         }
+        CashResponse cashResponse = cashClient.processCash(account.id(), value, action.name());
+        if (cashResponse == null) {
+            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+            fillModel(model, account, allAccounts, login, List.of("Сервис временно недоступен"), null);
+            return "main";
+        }
+        account = accountClient.getAccountByLogin(login);
+        if (account == null) {
+            fillEmptyModel(model, List.of("Сервис временно недоступен"));
+            return "main";
+        }
+        List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+        fillModel(model, account, allAccounts, login, null, cashResponse.message());
         return "main";
     }
 
@@ -110,21 +116,24 @@ public class MainController {
                            @RequestParam("login") String toLogin,
                            @AuthenticationPrincipal OidcUser oidcUser) {
         String login = oidcUser.getPreferredUsername();
-        try {
-            AccountResponse account = accountClient.getAccountByLogin(login);
-            TransferResponse transferResponse = transferClient.processTransfer(account.id(), toLogin, value);
-            account = accountClient.getAccountByLogin(login);
-            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-            fillModel(model, account, allAccounts, login, null, transferResponse.message());
-        } catch (ServiceException e) {
-            try {
-                AccountResponse account = accountClient.getAccountByLogin(login);
-                List<AccountResponse> allAccounts = accountClient.getAllAccounts();
-                fillModel(model, account, allAccounts, login, List.of(e.getMessage()), null);
-            } catch (ServiceException ex) {
-                fillEmptyModel(model, List.of(e.getMessage()));
-            }
+        AccountResponse account = accountClient.getAccountByLogin(login);
+        if (account == null) {
+            fillEmptyModel(model, List.of("Сервис временно недоступен"));
+            return "main";
         }
+        TransferResponse transferResponse = transferClient.processTransfer(account.id(), toLogin, value);
+        if (transferResponse == null) {
+            List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+            fillModel(model, account, allAccounts, login, List.of("Сервис временно недоступен"), null);
+            return "main";
+        }
+        account = accountClient.getAccountByLogin(login);
+        if (account == null) {
+            fillEmptyModel(model, List.of("Сервис временно недоступен"));
+            return "main";
+        }
+        List<AccountResponse> allAccounts = accountClient.getAllAccounts();
+        fillModel(model, account, allAccounts, login, null, transferResponse.message());
         return "main";
     }
 

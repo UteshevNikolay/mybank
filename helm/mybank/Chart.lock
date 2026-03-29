@@ -1,0 +1,42 @@
+dependencies:
+- name: keycloak-db
+  repository: ""
+  version: 0.1.0
+- name: keycloak
+  repository: ""
+  version: 0.1.0
+- name: accounts-db
+  repository: ""
+  version: 0.1.0
+- name: cash-db
+  repository: ""
+  version: 0.1.0
+- name: transfer-db
+  repository: ""
+  version: 0.1.0
+- name: notifications-db
+  repository: ""
+  version: 0.1.0
+- name: accounts
+  repository: ""
+  version: 0.1.0
+- name: cash
+  repository: ""
+  version: 0.1.0
+- name: transfer
+  repository: ""
+  version: 0.1.0
+- name: notifications
+  repository: ""
+  version: 0.1.0
+- name: kafka
+  repository: ""
+  version: 0.1.0
+- name: gateway
+  repository: ""
+  version: 0.1.0
+- name: frontend
+  repository: ""
+  version: 0.1.0
+digest: sha256:b992e06ca6c6ada80fde9d57ed324365f07e8b3e253d7c72a9b6000b634a7889
+generated: "2026-03-27T08:36:24.006651+03:00"

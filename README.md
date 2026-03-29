@@ -10,7 +10,7 @@ A microservice-based banking application with a UI that allows users to:
 
 | Service | Description | Port |
 |---------|-------------|------|
-| **Accounts** | User account data management (with Transactional Outbox for notifications) | 8081 |
+| **Accounts** | User account data management (publishes events to Kafka) | 8081 |
 | **Cash** | Deposit and withdrawal operations | 8083 |
 | **Transfer** | Money transfers between accounts | 8084 |
 | **Notifications** | User notifications | 8085 |
@@ -23,6 +23,7 @@ A microservice-based banking application with a UI that allows users to:
 - **Framework**: Spring Boot 3.5.12, Spring Web MVC, Spring Cloud 2025.0.0
 - **Data Access**: Spring Data JPA
 - **Database**: PostgreSQL 17 (each microservice has its own DB)
+- **Messaging**: Apache Kafka 3.9 (KRaft mode, notification events via Transactional Outbox)
 - **Auth Server**: Keycloak 26.2 (OAuth 2.0, Authorization Code Flow, JWT access tokens)
 - **API Gateway**: Traefik Ingress Controller (built into Rancher Desktop k3s)
 - **Service Discovery**: Kubernetes DNS (replaces Consul)
@@ -36,7 +37,7 @@ A microservice-based banking application with a UI that allows users to:
 - **Service Discovery** — Kubernetes Services provide DNS-based service resolution
 - **Circuit Breaker** — Resilient inter-service calls via Resilience4j
 - **RPI (Remote Procedure Invocation)** — Synchronous inter-service communication via RestClient
-- **Transactional Outbox** — Reliable event publishing; used by Cash/Transfer/Accounts services to notify the Notifications service
+- **Transactional Outbox + Kafka** — Reliable event publishing; Accounts/Cash/Transfer publish to Kafka topic, Notifications service consumes events
 - **Access Token** — OAuth 2.0 Authorization Code Flow via Keycloak for user authorization
 - **UI Composition** — Frontend composes UI from multiple microservice responses
 - **Externalized Config** — ConfigMaps and Secrets for environment-specific configuration
@@ -76,6 +77,7 @@ The application is packaged as an umbrella Helm chart with sub-charts for each c
 | transfer-db | StatefulSet | PostgreSQL for Transfer service |
 | notifications-db | StatefulSet | PostgreSQL for Notifications service |
 | keycloak-db | StatefulSet | PostgreSQL for Keycloak |
+| kafka | StatefulSet | Apache Kafka message broker (KRaft mode, single-node) |
 | keycloak | Deployment | Keycloak OAuth2 Authorization Server |
 | gateway | Ingress + Service | API Gateway — Traefik Ingress routing for inter-service communication |
 | accounts | Deployment | Accounts microservice |
@@ -99,7 +101,7 @@ Authentication and authorization is handled by Keycloak with the `mybank` realm 
 | Flow | Used by | Description |
 |------|---------|-------------|
 | Authorization Code | Frontend | Users log in via Keycloak UI, frontend holds session with JWT |
-| Client Credentials | Accounts, Cash, Transfer | Service-to-service calls to Notifications |
+| Client Credentials | Accounts, Cash, Transfer | Service-to-service calls |
 
 **Keycloak clients:**
 - `mybank-frontend` — Authorization Code Flow (secret: `frontend-secret`)
@@ -118,7 +120,7 @@ Tests are written using JUnit 5, Spring Boot Test, Testcontainers (requires Dock
 | Accounts | AccountServiceTest (8) | AccountControllerIntegrationTest (8) | BaseContractTest — producer (3) | 19 |
 | Cash | CashServiceTest (3) | CashControllerIntegrationTest (2) | AccountClientContractTest — consumer (2) | 7 |
 | Transfer | TransferServiceTest (2) | TransferControllerIntegrationTest (2) | AccountClientContractTest — consumer (3) | 7 |
-| Notifications | NotificationServiceTest (1) | NotificationControllerIntegrationTest (1) | — | 2 |
+| Notifications | NotificationServiceTest (1) | NotificationKafkaIntegrationTest (1) | — | 2 |
 | Frontend | MainControllerTest (3) | — | — | 3 |
 
 **Contract testing**: Accounts is the producer — defines API contracts (YAML DSL) and generates stubs. Cash and Transfer are consumers — verify their client code against WireMock stubs via `@AutoConfigureStubRunner`.

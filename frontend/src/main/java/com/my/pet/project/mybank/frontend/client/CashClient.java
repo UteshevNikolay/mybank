@@ -2,15 +2,16 @@ package com.my.pet.project.mybank.frontend.client;
 
 import com.my.pet.project.mybank.frontend.dto.CashRequest;
 import com.my.pet.project.mybank.frontend.dto.CashResponse;
-import com.my.pet.project.mybank.frontend.exception.ServiceException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CashClient {
@@ -29,6 +30,7 @@ public class CashClient {
     }
 
     private CashResponse processCashFallback(Long accountId, BigDecimal value, String action, Throwable t) {
-        throw new ServiceException("Cash service unavailable", t);
+        log.warn("Cash service unavailable: processCash(accountId={})", accountId, t);
+        return null;
     }
 }

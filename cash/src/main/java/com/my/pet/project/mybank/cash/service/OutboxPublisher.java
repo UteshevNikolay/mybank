@@ -4,10 +4,10 @@ import com.my.pet.project.mybank.cash.model.OutboxEvent;
 import com.my.pet.project.mybank.cash.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -17,19 +17,15 @@ import java.util.List;
 public class OutboxPublisher {
 
     private final OutboxEventRepository outboxEventRepository;
-    private final RestClient notificationsRestClient;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Scheduled(fixedDelay = 5000)
+    @SchedulerLock(name = "publishOutboxEvents_cash", lockAtMostFor = "4s")
     public void publishEvents() {
         List<OutboxEvent> events = outboxEventRepository.findBySentFalse();
         for (OutboxEvent event : events) {
             try {
-                notificationsRestClient.post()
-                        .uri("/notifications")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(event.getPayload())
-                        .retrieve()
-                        .toBodilessEntity();
+                kafkaTemplate.send("notifications.cash", String.valueOf(event.getId()), event.getPayload()).get();
 
                 event.setSent(true);
                 outboxEventRepository.save(event);
